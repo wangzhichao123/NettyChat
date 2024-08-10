@@ -16,7 +16,6 @@ public enum MessageTypeEnum {
 
     GROUP(2, "群组消息");
 
-
     private final Integer code;
 
     private final String desc;
