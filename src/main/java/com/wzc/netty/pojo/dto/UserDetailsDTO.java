@@ -27,9 +27,6 @@ public class UserDetailsDTO{
     @ApiModelProperty("用户ID")
     private String userId;
 
-    @ApiModelProperty("密码")
-    private String password;
-
     @ApiModelProperty("用户昵称")
     private String nickname;
 

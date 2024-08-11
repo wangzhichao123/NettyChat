@@ -79,7 +79,6 @@ public class WebSocketServiceImpl implements WebSocketService {
 
     }
 
-
     @Override
     public void handleLoginReq(Channel channel, String data, String token) {
         if (StrUtil.isNotBlank(token)) {
@@ -98,7 +97,8 @@ public class WebSocketServiceImpl implements WebSocketService {
     public void handleSendMessage(Channel channel, String data, String token) {
         // 1、校验数据
         if(StrUtil.isBlank(data)){
-            disruptorMQService.sendMsg(channel, R.fail(MESSAGE_SEND_ERROR));
+            disruptorMQService.sendMsg(channel, R.fail("用户状态异常"));
+            clearSession(channel);
             return ;
         }
         String userId = tokenService.getSubject(token);
@@ -106,7 +106,6 @@ public class WebSocketServiceImpl implements WebSocketService {
         // 2、校验用户 Token (解决同一个浏览器下多用户登录的问题)
         if(StrUtil.isBlank(userId) || !attrKeyUserId.equals(userId)){
             disruptorMQService.sendMsg(channel, R.fail("用户状态异常"));
-            // 强制踢出
             clearSession(channel);
             return ;
         }

@@ -19,7 +19,7 @@ public class DisruptorMQServiceImpl implements DisruptorMQService {
 
     @Override
     public void sendMsg(Channel channel, R<?> msg) {
-        log.info("record the message: {}", JSONUtil.toJsonStr(msg));
+        log.info("Record the message: {}", JSONUtil.toJsonStr(msg));
         // 获取下一个Event槽的下标
         long sequence = messageModelRingBuffer.next();
         try {

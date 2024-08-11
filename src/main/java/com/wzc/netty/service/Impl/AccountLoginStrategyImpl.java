@@ -34,20 +34,25 @@ import static com.wzc.netty.enums.StatusCodeEnum.*;
 @Service
 public class AccountLoginStrategyImpl implements LoginStrategy {
 
-    @Resource
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
+    private final TokenService tokenService;
+    private final RedisService redisService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final DisruptorMQService disruptorMQService;
 
-    @Resource
-    private TokenService tokenService;
-
-    @Resource
-    private RedisService redisService;
-
-    @Resource
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Resource
-    private DisruptorMQService disruptorMQService;
+    public AccountLoginStrategyImpl(
+            UserMapper userMapper,
+            TokenService tokenService,
+            RedisService redisService,
+            BCryptPasswordEncoder bCryptPasswordEncoder,
+            DisruptorMQService disruptorMQService
+    ) {
+        this.userMapper = userMapper;
+        this.tokenService = tokenService;
+        this.redisService = redisService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.disruptorMQService = disruptorMQService;
+    }
     @Override
     public void login(Channel channel, String loginData, Integer loginType) {
         UserDetailsDTO userDetailsDTO;
@@ -82,7 +87,6 @@ public class AccountLoginStrategyImpl implements LoginStrategy {
         redisService.hSet(LOGIN_USER, userDetailsDTO.getUserId(), JSONObject.parseObject(JSONObject.toJSONString(userDetailsDTO)), EXPIRE_USER);
         // 异步发送登录成功消息
         disruptorMQService.sendMsg(channel, R.ok(userDetailsDTO, LOGIN_SUCCESS));
-
 
     }
 }

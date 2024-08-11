@@ -21,7 +21,7 @@ public enum StatusCodeEnum {
 
     LOGIN_SUCCESS(10001, "登录成功"),
 
-    LOGIN_ERROR(10002, "登录错误"),
+    LOGIN_ERROR(10002, "登录失败"),
 
     MESSAGE_SEND_SUCCESS(10003, "私聊/群组消息发送成功"),
 

@@ -5,6 +5,7 @@ import com.wzc.netty.pojo.entity.User;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
 * @author wzc
@@ -17,11 +18,11 @@ public interface UserMapper extends BaseMapper<User> {
     /**
      * 保存用户登录状态
      * @param userId
-     * @param code
+     * @param status
      * @param onlineTime
      * @param offlineTime
      */
-    void saveUserLoginStatus(@Param("userId") String userId, @Param("code") Integer code, @Param("onlineTime") LocalDateTime onlineTime, @Param("offlineTime") LocalDateTime offlineTime);
+    void saveUserLoginStatus(@Param("userId") String userId, @Param("status") Integer status, @Param("onlineTime") LocalDateTime onlineTime, @Param("offlineTime") LocalDateTime offlineTime);
 
     /**
      * 根据用户ID查询用户
@@ -29,6 +30,14 @@ public interface UserMapper extends BaseMapper<User> {
      * @return
      */
     User queryUserByUserId(@Param("userId") String userId);
+
+    /**
+     * 获取用户好友
+     * @param userId
+     * @return
+     */
+
+    List<User> getFriendsByUserId(@Param("userId")String userId, @Param("status") Integer status);
 }
 
 

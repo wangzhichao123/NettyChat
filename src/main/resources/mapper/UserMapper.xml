@@ -25,16 +25,16 @@
                 UPDATE user
                 <set>
                         <if test="onlineTime != null">
-                                onlineTime = #{onlineTime, jdbcType=TIMESTAMP},
+                                onlineTime = #{onlineTime},
                         </if>
                         <if test="offlineTime != null">
-                                offline_time = #{offlineTime, jdbcType=TIMESTAMP},
+                                offline_time = #{offlineTime},
                         </if>
-                        <if test="code != null">
-                                status = #{code, jdbcType=TINYINT},
+                        <if test="status != null">
+                                status = #{status},
                         </if>
                 </set>
-                WHERE user_id = #{userId, jdbcType=VARCHAR} and del_flag = 0
+                WHERE user_id = #{userId} and del_flag = 0
         </update>
         <select id="queryUserByUserId" resultType="com.wzc.netty.pojo.entity.User">
                 SELECT id,
@@ -49,8 +49,24 @@
                        offline_time,
                        online_time
                 FROM user
-                WHERE user_id = #{userId, jdbcType=VARCHAR} and del_flag = 0
+                WHERE user_id = #{userId} and del_flag = 0
         </select>
+
+    <select id="getFriendsByUserId" resultType="com.wzc.netty.pojo.entity.User">
+        SELECT a.id,
+               a.user_id,
+               a.nickname,
+               a.login_type,
+               a.open_id,
+               a.ip_info,
+               a.status,
+               a.user_avatar,
+               a.offline_time,
+               a.online_time
+        FROM user as a
+                 INNER JOIN user_relationship as b ON a.user_id = b.user_to_id
+        WHERE b.user_from_id = #{userId} and b.status = #{status} and b.del_flag = 0 and a.del_flag = 0 ;
+    </select>
 
 
 </mapper>
