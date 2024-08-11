@@ -101,9 +101,13 @@ public class WebSocketServiceImpl implements WebSocketService {
             disruptorMQService.sendMsg(channel, R.fail(MESSAGE_SEND_ERROR));
             return ;
         }
-        // 2、校验用户 Token
-        if(StrUtil.isBlank(tokenService.getSubject(token))){
-            disruptorMQService.sendMsg(channel, R.fail(MESSAGE_SEND_ERROR));
+        String userId = tokenService.getSubject(token);
+        String attrKeyUserId = NettyAttrUtil.getAttrKeyUserId(channel);
+        // 2、校验用户 Token (解决同一个浏览器下多用户登录的问题)
+        if(StrUtil.isBlank(userId) || !attrKeyUserId.equals(userId)){
+            disruptorMQService.sendMsg(channel, R.fail("用户状态异常"));
+            // 强制踢出
+            clearSession(channel);
             return ;
         }
         ChatMessageDTO messageDTO = JSONUtil.toBean(data, ChatMessageDTO.class);
