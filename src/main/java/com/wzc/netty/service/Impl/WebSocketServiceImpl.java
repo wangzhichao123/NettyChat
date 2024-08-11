@@ -157,7 +157,7 @@ public class WebSocketServiceImpl implements WebSocketService {
             for (Channel targetChannel : targetChannels) {
                 String targetUserId = targetChannel.attr(NettyAttrUtil.ATTR_KEY_USER_ID).get();
                 if (targetUserId.equals(targetUser.getUserId())){
-                    disruptorMQService.sendMsg(targetChannel, R.ok(messageContentHandler(messageDTO)));
+                    disruptorMQService.sendMsg(targetChannel, R.ok(messageContentHandler(messageDTO), MESSAGE_SEND_SUCCESS));
                 }
             }
         }else {

@@ -23,9 +23,9 @@ public enum StatusCodeEnum {
 
     LOGIN_ERROR(10002, "登录错误"),
 
-    MESSAGE_SEND_SUCCESS(10003, "消息发送成功"),
+    MESSAGE_SEND_SUCCESS(10003, "私聊/群组消息发送成功"),
 
-    MESSAGE_SEND_ERROR(10004, "消息发送失败"),
+    MESSAGE_SEND_ERROR(10004, "私聊/群组消息发送失败"),
 
     INVALID_TOKEN(10005, "Token解析失败"),
 
