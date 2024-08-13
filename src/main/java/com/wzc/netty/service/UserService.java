@@ -2,6 +2,7 @@ package com.wzc.netty.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wzc.netty.pojo.entity.User;
+import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
 
 import java.util.List;
 
@@ -12,5 +13,5 @@ import java.util.List;
 */
 public interface UserService extends IService<User> {
 
-    List<User> getFriendsByUserId(String userId);
+    List<UserFriendsInfoVo> getFriendsByUserId(String userId);
 }

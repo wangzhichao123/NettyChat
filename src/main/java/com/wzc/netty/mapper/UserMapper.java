@@ -2,6 +2,7 @@ package com.wzc.netty.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wzc.netty.pojo.entity.User;
+import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
@@ -37,7 +38,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @return
      */
 
-    List<User> getFriendsByUserId(@Param("userId")String userId, @Param("status") Integer status);
+    List<UserFriendsInfoVo> getFriendsByUserId(@Param("userId")String userId, @Param("status") Integer status);
 }
 
 

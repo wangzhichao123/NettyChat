@@ -2,6 +2,7 @@ package com.wzc.netty.controller;
 
 import com.wzc.netty.pojo.R;
 import com.wzc.netty.pojo.entity.User;
+import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
 import com.wzc.netty.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,7 +16,6 @@ import java.util.List;
 
 
 @Api(tags = "用户接口")
-@Slf4j
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -25,7 +25,7 @@ public class UserController {
 
     @PostMapping("/relationship")
     @ApiOperation(value = "获取用户好友信息")
-    public R<List<User>> getUser(@RequestParam("userId") @Valid @NotBlank String userId) {
+    public R<List<UserFriendsInfoVo>> getUser(@RequestParam("userId") @Valid @NotBlank String userId) {
         return R.ok(userService.getFriendsByUserId(userId));
     }
 

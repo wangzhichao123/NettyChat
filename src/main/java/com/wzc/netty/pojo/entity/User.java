@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -75,6 +76,7 @@ public class User implements Serializable {
     /**
      * 上线时间
      */
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime onlineTime;
 
     /**

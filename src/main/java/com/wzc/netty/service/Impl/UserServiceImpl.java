@@ -3,6 +3,7 @@ package com.wzc.netty.service.Impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wzc.netty.mapper.UserMapper;
 import com.wzc.netty.pojo.entity.User;
+import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
 import com.wzc.netty.service.UserService;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public List<User> getFriendsByUserId(String userId) {
+    public List<UserFriendsInfoVo> getFriendsByUserId(String userId) {
         return userMapper.getFriendsByUserId(userId, APPROVED.getCode());
     }
 }
