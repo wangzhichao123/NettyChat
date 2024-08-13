@@ -3,6 +3,7 @@ package com.wzc.netty.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wzc.netty.pojo.entity.Message;
+import org.apache.ibatis.annotations.Param;
 
 /**
 * @author wzc
@@ -15,10 +16,10 @@ public interface MessageMapper extends BaseMapper<Message> {
     /**
      * 更新消息状态
      * @param messageId
-     * @param status
+     * @param messageStatus
      * @return
      */
-    boolean updateMessageStatus(String messageId, Integer status);
+    boolean updateMessageStatus(@Param("messageId") String messageId, @Param("messageStatus") Integer messageStatus);
 
     /**
      * 查询私聊消息
@@ -27,7 +28,7 @@ public interface MessageMapper extends BaseMapper<Message> {
      * @param userToId
      * @return
      */
-    Message queryPrivateMessage(String messageId, String userFromId, String userToId);
+    Message queryPrivateMessage(@Param("messageId") String messageId, @Param("userFromId") String userFromId, @Param("userToId") String userToId);
 
     /**
      * 查询群聊消息
@@ -36,7 +37,7 @@ public interface MessageMapper extends BaseMapper<Message> {
      * @param groupId
      * @return
      */
-    Message queryGroupMessage(String messageId, String userFromId, String groupId);
+    Message queryGroupMessage(@Param("messageId") String messageId, @Param("userFromId") String userFromId, @Param("groupId") String groupId);
 }
 
 

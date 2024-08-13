@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName(value ="message")
-public class Message implements Serializable, Delayed {
+public class Message implements Serializable{
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -87,6 +88,7 @@ public class Message implements Serializable, Delayed {
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
 
     /**
@@ -102,13 +104,4 @@ public class Message implements Serializable, Delayed {
     private Boolean delFlag;
 
 
-    @Override
-    public long getDelay(TimeUnit unit) {
-        return 0;
-    }
-
-    @Override
-    public int compareTo(Delayed o) {
-        return 0;
-    }
 }

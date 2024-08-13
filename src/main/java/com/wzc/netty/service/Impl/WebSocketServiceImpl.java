@@ -24,6 +24,7 @@ import com.wzc.netty.util.NettyAttrUtil;
 import com.wzc.netty.util.RandomIDUtil;
 import io.netty.channel.Channel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.CopyOnWriteArrayList;
