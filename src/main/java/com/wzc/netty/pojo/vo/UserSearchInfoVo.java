@@ -5,9 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel(description = "UserFriendsInfoVo")
-public class UserFriendsInfoVo {
-
+@ApiModel(description = "UserSearchInfoVo")
+public class UserSearchInfoVo {
     @ApiModelProperty(name = "用户ID")
     private String userId;
 
@@ -16,7 +15,4 @@ public class UserFriendsInfoVo {
 
     @ApiModelProperty(name = "用户头像")
     private String userAvatar;
-
-    @ApiModelProperty(name = "登录状态")
-    private Integer status;
 }
