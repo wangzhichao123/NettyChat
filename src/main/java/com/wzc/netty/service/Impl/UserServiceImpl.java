@@ -82,6 +82,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(ObjectUtil.isEmpty(user)){
             throw new BizException("用户不存在!");
         }
+        if(userFromRelationship.getStatus() == PENDING.getCode() || userFromRelationship.getStatus() == PENDING.getCode()){
+            throw new BizException("请勿重复添加!");
+        }
         // 发起好友申请
         UserRelationship userRelationship = new UserRelationship();
         userRelationship.setUserFromId(userFromId);
