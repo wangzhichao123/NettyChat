@@ -6,17 +6,24 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wzc.netty.exception.BizException;
 import com.wzc.netty.mapper.UserMapper;
 import com.wzc.netty.mapper.UserRelationshipMapper;
+import com.wzc.netty.pojo.R;
 import com.wzc.netty.pojo.entity.User;
 import com.wzc.netty.pojo.entity.UserRelationship;
 import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
 import com.wzc.netty.pojo.vo.UserSearchInfoVo;
+import com.wzc.netty.service.DisruptorMQService;
 import com.wzc.netty.service.UserService;
+import com.wzc.netty.util.NettyAttrUtil;
+import io.netty.channel.Channel;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.wzc.netty.context.WebSocketChannelContext.M_DEVICE_ONLINE_USER_MAP;
+import static com.wzc.netty.enums.StatusCodeEnum.FRIEND_APPLICATION;
 import static com.wzc.netty.enums.UserRelationshipStatusEnum.*;
 
 
@@ -33,6 +40,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private UserRelationshipMapper userRelationshipMapper;
+
+    @Resource
+    private DisruptorMQService disruptorMQService;
 
     /**
      * 获取好友列表
@@ -79,6 +89,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userRelationship.setStatus(PENDING.getCode());
         userRelationship.setAddTime(LocalDateTime.now());
         int result = userRelationshipMapper.insert(userRelationship);
+        CopyOnWriteArrayList<Channel> targetChannels = M_DEVICE_ONLINE_USER_MAP.get(userToId);
+        if(ObjectUtil.isNotEmpty(targetChannels)){
+            for (Channel targetChannel : targetChannels) {
+                String targetUserId = targetChannel.attr(NettyAttrUtil.ATTR_KEY_USER_ID).get();
+                if (targetUserId.equals(userToId)){
+                    disruptorMQService.sendMsg(targetChannel, R.ok(userRelationship, FRIEND_APPLICATION));
+                }
+            }
+        }
         return BooleanUtil.isTrue(result > 0);
     }
 

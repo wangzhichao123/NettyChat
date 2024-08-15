@@ -39,7 +39,9 @@ public enum StatusCodeEnum {
 
     INVALID_ACK_MESSAGE(10010, "非法确认消息类型"),
 
-    NOT_FRIENDS(10011, "非好友关系");
+    NOT_FRIENDS(10011, "非好友关系"),
+
+    FRIEND_APPLICATION(10012, "好友申请");
 
     private final Integer code;
 
