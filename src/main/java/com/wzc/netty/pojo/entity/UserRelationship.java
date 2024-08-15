@@ -38,6 +38,16 @@ public class UserRelationship {
     private Integer status;
 
     /**
+     * 添加好友时间
+     */
+    private LocalDateTime addTime;
+
+    /**
+     * 删除好友时间
+     */
+    private LocalDateTime delTime;
+
+    /**
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)

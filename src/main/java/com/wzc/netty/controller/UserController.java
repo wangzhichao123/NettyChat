@@ -37,11 +37,18 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    @ApiOperation(value = "添加用户")
+    @ApiOperation(value = "添加好友")
     public R<Boolean> addUser(@RequestParam("userFromId") @Valid @NotBlank String userFromId,
                               @RequestParam("userToId") @Valid @NotBlank String userToId) {
         return R.ok(userService.addUser(userFromId, userToId));
     }
 
+    @PostMapping("/approve")
+    @ApiOperation(value = "通过/拒绝好友申请信息")
+    public R<Boolean> approveUser(@RequestParam("userFromId") @Valid @NotBlank String userFromId,
+                                  @RequestParam("userToId") @Valid @NotBlank String userToId,
+                                  @RequestParam("flag") @Valid @NotBlank Boolean flag) {
+        return R.ok(userService.approveOrRejectUser(userFromId, userToId, flag));
+    }
 
 }

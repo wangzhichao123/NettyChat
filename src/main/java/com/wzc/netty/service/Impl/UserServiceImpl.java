@@ -14,10 +14,11 @@ import com.wzc.netty.service.UserService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.wzc.netty.enums.UserRelationshipStatusEnum.APPROVED;
-import static com.wzc.netty.enums.UserRelationshipStatusEnum.PENDING;
+import static com.wzc.netty.enums.UserRelationshipStatusEnum.*;
+
 
 /**
 * @author wzc
@@ -44,7 +45,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 获取搜索用户信息
+     * 获取搜索好友信息
      * @param userId
      * @return
      */
@@ -55,7 +56,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 添加用户
+     * 添加好友
      * @param userFromId
      * @param userToId
      * @return
@@ -76,9 +77,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userRelationship.setUserFromId(userFromId);
         userRelationship.setUserToId(userToId);
         userRelationship.setStatus(PENDING.getCode());
+        userRelationship.setAddTime(LocalDateTime.now());
         int result = userRelationshipMapper.insert(userRelationship);
         return BooleanUtil.isTrue(result > 0);
     }
+
+    /**
+     * 通过好友申请
+     * @param userFromId
+     * @param userToId
+     * @return
+     */
+    @Override
+    public Boolean approveOrRejectUser(String userFromId, String userToId, Boolean flag) {
+        int record = 0;
+        UserRelationship userRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, PENDING.getCode());
+        if(ObjectUtil.isEmpty(userRelationship)){
+            throw new BizException("暂无添加好友请求！");
+        }
+        Integer userRelationshipStatus = userRelationship.getStatus();
+        if(userRelationshipStatus == APPROVED.getCode()){
+            throw new BizException("对方已是你的好友！");
+        }
+        if(userRelationshipStatus == REJECTED.getCode()){
+            throw new BizException("对方已拒绝！");
+        }
+        if(userRelationshipStatus == PENDING.getCode()){
+            if(flag){
+                userRelationship.setStatus(APPROVED.getCode());
+                record = userRelationshipMapper.updateById(userRelationship);
+            }else{
+                userRelationship.setStatus(REJECTED.getCode());
+                record = userRelationshipMapper.updateById(userRelationship);
+            }
+
+        }
+        return BooleanUtil.isTrue(record > 0);
+    }
+
 }
 
 
