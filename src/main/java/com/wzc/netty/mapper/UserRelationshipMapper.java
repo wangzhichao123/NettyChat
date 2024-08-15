@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wzc.netty.pojo.entity.UserRelationship;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 
 public interface UserRelationshipMapper extends BaseMapper<UserRelationship> {
 
@@ -14,6 +16,6 @@ public interface UserRelationshipMapper extends BaseMapper<UserRelationship> {
      * @param status
      * @return
      */
-    UserRelationship queryUserRelationship(@Param("userFromId") String userFromId, @Param("userToId") String userToId, @Param("status") Integer status);
+    UserRelationship queryUserRelationship(@Param("userFromId") String userFromId, @Param("userToId") String userToId, @Param("validCodeList") List<Integer> validCodeList);
 
 }

@@ -73,17 +73,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public Boolean addUser(String userFromId, String userToId) {
-        UserRelationship userFromRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, APPROVED.getCode());
-        UserRelationship userToRelationship = userRelationshipMapper.queryUserRelationship(userToId, userFromId, APPROVED.getCode());
-        if(ObjectUtil.isNotEmpty(userFromRelationship) || ObjectUtil.isNotEmpty(userToRelationship) ){
-            throw new BizException("对方已是你的好友!");
+        List<Integer> validCodeList = List.of(PENDING.getCode(), APPROVED.getCode());
+        UserRelationship userFromRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
+        UserRelationship userToRelationship = userRelationshipMapper.queryUserRelationship(userToId, userFromId, validCodeList);
+        if(ObjectUtil.isNotEmpty(userFromRelationship) && ObjectUtil.isNotEmpty(userToRelationship)) {
+            throw new BizException("请勿重复添加!");
         }
         User user = userMapper.queryUserByUserId(userToId);
         if(ObjectUtil.isEmpty(user)){
             throw new BizException("用户不存在!");
-        }
-        if(userFromRelationship.getStatus() == PENDING.getCode() || userFromRelationship.getStatus() == PENDING.getCode()){
-            throw new BizException("请勿重复添加!");
         }
         // 发起好友申请
         UserRelationship userRelationship = new UserRelationship();
@@ -113,7 +111,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Boolean approveOrRejectUser(String userFromId, String userToId, Boolean flag) {
         int record = 0;
-        UserRelationship userRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, PENDING.getCode());
+        List<Integer> validCodeList = List.of(PENDING.getCode());
+        UserRelationship userRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
         if(ObjectUtil.isEmpty(userRelationship)){
             throw new BizException("暂无添加好友请求！");
         }
