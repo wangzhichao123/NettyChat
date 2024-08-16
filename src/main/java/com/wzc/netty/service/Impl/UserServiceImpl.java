@@ -61,7 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public Page<UserFriendsInfoVo> getUserFriendListByUserId(String userId) {
-        Page<UserFriendsInfoVo> page = new Page<>(PaginationContext.getCurrent(), PaginationContext.getSize());
+        Page<UserFriendsInfoVo> page = new Page<>(PaginationContext.getCurrent(), 1000L);
         return userMapper.getUserFriendListByUserId(page, userId, APPROVED.getCode());
     }
 
@@ -192,7 +192,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(StrUtil.isBlank(userId)){
             throw new BizException("用户ID不能为空!");
         }
-        Page<UserFriendsInfoVo> page = new Page<>(PaginationContext.getCurrent(), PaginationContext.getSize());
+        Page<UserFriendsInfoVo> page = new Page<>(PaginationContext.getCurrent(), 1000L);
         return userMapper.getUserApplicationList(page, userId, PENDING.getCode());
     }
 
