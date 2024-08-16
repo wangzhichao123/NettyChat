@@ -40,7 +40,7 @@ public class UserController {
 
     @PostMapping("/friend/application/cursor")
     @ApiOperation(value = "游标好友申请列表")
-    public R<Page<UserFriendsInfoVo>> getCursorUserApplicationList(@RequestParam("userId") String userId, @RequestParam("userId") Long id) {
+    public R<Page<UserFriendsInfoVo>> getCursorUserApplicationList(@RequestParam("userId") String userId, @RequestParam("id") Long id) {
         return R.ok(userService.getCursorUserApplicationList(userId, id));
     }
 

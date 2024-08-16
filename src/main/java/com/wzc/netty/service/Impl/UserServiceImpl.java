@@ -83,10 +83,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(StrUtil.isBlank(userFromId) || StrUtil.isBlank(userToId)){
             throw new BizException("用户ID不能为空!");
         }
-        List<Integer> validCodeList = List.of(PENDING.getCode());
+        List<Integer> validCodeList = List.of(PENDING.getCode(), APPROVED.getCode());
         UserRelationship userFromRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
         UserRelationship userToRelationship = userRelationshipMapper.queryUserRelationship(userToId, userFromId, validCodeList);
-        if(ObjectUtil.isNotEmpty(userFromRelationship) && ObjectUtil.isNotEmpty(userToRelationship)) {
+        if(ObjectUtil.isNotEmpty(userFromRelationship) || ObjectUtil.isNotEmpty(userToRelationship)) {
             throw new BizException("请勿重复添加!");
         }
         User user = userMapper.queryUserByUserId(userToId);
