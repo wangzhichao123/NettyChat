@@ -20,6 +20,6 @@ public interface UserService extends IService<User> {
 
     Boolean addUser(String userFromId, String userToId);
 
-    Boolean approveOrRejectUser(String userFromId, String userToId, Boolean flag);
+    Boolean approveOrRejectUser(String userFromId, String userToId, Integer code);
 
 }

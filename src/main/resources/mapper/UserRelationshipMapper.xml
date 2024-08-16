@@ -29,6 +29,7 @@
         <foreach item="item" index="index" collection="validCodeList" open="(" separator="," close=")">
             #{item}
         </foreach>
+        and del_flag = 0
     </select>
 
 

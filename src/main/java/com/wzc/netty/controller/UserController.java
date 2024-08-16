@@ -8,6 +8,7 @@ import com.wzc.netty.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -38,17 +39,30 @@ public class UserController {
 
     @PostMapping("/add")
     @ApiOperation(value = "添加好友")
-    public R<Boolean> addUser(@RequestParam("userFromId") @NotBlank String userFromId,
-                              @RequestParam("userToId") @NotBlank String userToId) {
+    public R<Boolean> addUser(@RequestParam("userFromId") String userFromId,
+                              @RequestParam("userToId") String userToId) {
         return R.ok(userService.addUser(userFromId, userToId));
     }
 
     @PostMapping("/approve")
     @ApiOperation(value = "通过/拒绝好友申请信息")
-    public R<Boolean> approveUser(@RequestParam("userFromId") @NotBlank String userFromId,
-                                  @RequestParam("userToId") @NotBlank String userToId,
-                                  @RequestParam("flag") @NotBlank Boolean flag) {
-        return R.ok(userService.approveOrRejectUser(userFromId, userToId, flag));
+    public R<Boolean> approveUser(@RequestParam("userFromId") String userFromId,
+                                  @RequestParam("userToId") String userToId,
+                                  @RequestParam("code") Integer code) {
+        return R.ok(userService.approveOrRejectUser(userFromId, userToId, code));
     }
+
+    @PostMapping("/friend/application")
+    @ApiOperation(value = "好友申请列表")
+    public R<List<UserFriendsInfoVo>> getUserInfo(@RequestParam("userId") @NotBlank String userId) {
+        return R.ok(userService.getUserApplicationList(userId));
+    }
+
+    @PostMapping("/friend/application/cursor")
+    @ApiOperation(value = "游标好友申请列表")
+    public R<List<UserFriendsInfoVo>> getUserApplicationList(@RequestParam("userId") @NotBlank String userId) {
+        return R.ok(userService.getUserApplicationList(userId));
+    }
+
 
 }

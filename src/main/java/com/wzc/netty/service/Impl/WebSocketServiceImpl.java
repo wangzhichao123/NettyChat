@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.wzc.netty.context.WebSocketChannelContext.*;
@@ -144,7 +145,8 @@ public class WebSocketServiceImpl implements WebSocketService {
             disruptorMQService.sendMsg(channel, R.fail(USER_NOT_EXIST));
             return ;
         }
-        UserRelationship relationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, APPROVED.getCode());
+        List<Integer> validCodeList = List.of(APPROVED.getCode());
+        UserRelationship relationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
         if(ObjectUtil.isEmpty(relationship)){
             disruptorMQService.sendMsg(channel, R.fail(NOT_FRIENDS));
             return ;

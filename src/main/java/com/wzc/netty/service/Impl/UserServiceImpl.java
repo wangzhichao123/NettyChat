@@ -2,6 +2,7 @@ package com.wzc.netty.service.Impl;
 
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wzc.netty.exception.BizException;
 import com.wzc.netty.mapper.UserMapper;
@@ -22,6 +23,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.wzc.netty.constant.CommonConstant.APPROVE_CODE;
+import static com.wzc.netty.constant.CommonConstant.REJECT_CODE;
 import static com.wzc.netty.context.WebSocketChannelContext.M_DEVICE_ONLINE_USER_MAP;
 import static com.wzc.netty.enums.StatusCodeEnum.FRIEND_APPLICATION;
 import static com.wzc.netty.enums.UserRelationshipStatusEnum.*;
@@ -73,6 +76,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public Boolean addUser(String userFromId, String userToId) {
+        if(StrUtil.isBlank(userFromId) || StrUtil.isBlank(userToId)){
+            throw new BizException("用户ID不能为空!");
+        }
         List<Integer> validCodeList = List.of(PENDING.getCode(), APPROVED.getCode());
         UserRelationship userFromRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
         UserRelationship userToRelationship = userRelationshipMapper.queryUserRelationship(userToId, userFromId, validCodeList);
@@ -109,7 +115,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public Boolean approveOrRejectUser(String userFromId, String userToId, Boolean flag) {
+    public Boolean approveOrRejectUser(String userFromId, String userToId, Integer code) {
+        if(StrUtil.isBlank(userFromId) || StrUtil.isBlank(userToId)){
+            throw new BizException("用户ID不能为空!");
+        }
         int record = 0;
         List<Integer> validCodeList = List.of(PENDING.getCode());
         UserRelationship userRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
@@ -124,14 +133,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BizException("对方已拒绝！");
         }
         if(userRelationshipStatus == PENDING.getCode()){
-            if(flag){
+            if(code == APPROVE_CODE){
                 userRelationship.setStatus(APPROVED.getCode());
-                record = userRelationshipMapper.updateById(userRelationship);
-            }else{
+            }else if(code == REJECT_CODE){
                 userRelationship.setStatus(REJECTED.getCode());
-                record = userRelationshipMapper.updateById(userRelationship);
             }
-
+            record = userRelationshipMapper.updateById(userRelationship);
         }
         return BooleanUtil.isTrue(record > 0);
     }

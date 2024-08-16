@@ -13,7 +13,7 @@ public interface UserRelationshipMapper extends BaseMapper<UserRelationship> {
      * 查询用户关系
      * @param userFromId
      * @param userToId
-     * @param status
+     * @param validCodeList
      * @return
      */
     UserRelationship queryUserRelationship(@Param("userFromId") String userFromId, @Param("userToId") String userToId, @Param("validCodeList") List<Integer> validCodeList);
