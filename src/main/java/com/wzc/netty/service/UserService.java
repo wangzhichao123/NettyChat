@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface UserService extends IService<User> {
 
-    List<UserFriendsInfoVo> getUserFriendListByUserId(String userId);
+    Page<UserFriendsInfoVo> getUserFriendListByUserId(String userId);
 
     UserSearchInfoVo getSearchUserInfoByUserId(String userId);
 
@@ -26,4 +26,6 @@ public interface UserService extends IService<User> {
     Page<UserFriendsInfoVo> getUserApplicationList(String userId);
 
     Page<UserFriendsInfoVo> getCursorUserApplicationList(String userId, Long id);
+
+    Page<UserFriendsInfoVo> getCursorUserFriendList(String userId, Long id);
 }

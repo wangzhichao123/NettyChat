@@ -28,8 +28,14 @@ public class UserController {
 
     @PostMapping("/relationship")
     @ApiOperation(value = "好友列表")
-    public R<List<UserFriendsInfoVo>> getUserFriendList(@RequestParam("userId") String userId) {
+    public R<Page<UserFriendsInfoVo>> getUserFriendList(@RequestParam("userId") String userId) {
         return R.ok(userService.getUserFriendListByUserId(userId));
+    }
+
+    @PostMapping("/relationship/cursor")
+    @ApiOperation(value = "游标好友列表")
+    public R<Page<UserFriendsInfoVo>> getCursorUserFriendList(@RequestParam("userId") String userId, @RequestParam("id") Long id) {
+        return R.ok(userService.getCursorUserFriendList(userId, id));
     }
 
     @PostMapping("/friend/application")

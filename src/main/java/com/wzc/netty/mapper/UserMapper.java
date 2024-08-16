@@ -40,7 +40,9 @@ public interface UserMapper extends BaseMapper<User> {
      * @return
      */
 
-    List<UserFriendsInfoVo> getUserFriendListByUserId(@Param("userId") String userId, @Param("status") Integer status);
+    Page<UserFriendsInfoVo> getUserFriendListByUserId(Page<UserFriendsInfoVo> page,
+                                                      @Param("userId") String userId,
+                                                      @Param("status") Integer status);
 
     /**
      * 获取搜索用户信息
@@ -56,7 +58,9 @@ public interface UserMapper extends BaseMapper<User> {
      * @param status
      * @return
      */
-    Page<UserFriendsInfoVo> getUserApplicationList(Page<UserFriendsInfoVo> page, @Param("userId") String userId,  @Param("status") Integer status);
+    Page<UserFriendsInfoVo> getUserApplicationList(Page<UserFriendsInfoVo> page,
+                                                   @Param("userId") String userId,
+                                                   @Param("status") Integer status);
 
     /**
      * 获取游标好友申请列表
@@ -65,7 +69,10 @@ public interface UserMapper extends BaseMapper<User> {
      * @param status
      * @return
      */
-    Page<UserFriendsInfoVo> getCursorUserApplicationList(Page<UserFriendsInfoVo> page, @Param("userId") String userId, @Param("id") Long id, @Param("status") Integer status);
+    Page<UserFriendsInfoVo> getCursorUserApplicationList(Page<UserFriendsInfoVo> page,
+                                                         @Param("userId") String userId,
+                                                         @Param("id") Long id,
+                                                         @Param("status") Integer status);
 }
 
 
