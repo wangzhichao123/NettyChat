@@ -28,10 +28,6 @@ public class PaginationContext {
         return getPage().getSize();
     }
 
-    public static Long getLimitCurrent() {
-        return (getCurrent() - 1) * getSize();
-    }
-
     public static void remove() {
         PAGE_CONTEXT.remove();
     }
