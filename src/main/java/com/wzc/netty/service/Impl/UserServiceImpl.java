@@ -130,6 +130,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(userFromId.equals(userToId)){
             throw new BizException("不能删除自己!");
         }
+        int record = 0;
         List<Integer> validCodeList = List.of(APPROVED.getCode());
         UserRelationship userFromRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
         UserRelationship userToRelationship = userRelationshipMapper.queryUserRelationship(userToId, userFromId, validCodeList);
@@ -143,8 +144,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(ObjectUtil.isEmpty(user)){
             throw new BizException("用户不存在!");
         }
-
-        return null;
+        if(ObjectUtil.isNotEmpty(userFromRelationship)){
+            userFromRelationship.setDelTime(LocalDateTime.now());
+            record = userRelationshipMapper.deleteById(userFromRelationship.getId());
+        }
+        if(ObjectUtil.isNotEmpty(userToRelationship)){
+            userFromRelationship.setDelTime(LocalDateTime.now());
+            record = userRelationshipMapper.deleteById(userToRelationship.getId());
+        }
+        return BooleanUtil.isTrue(record > 0);
     }
 
     /**
