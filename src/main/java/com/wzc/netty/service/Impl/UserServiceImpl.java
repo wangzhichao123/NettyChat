@@ -42,14 +42,17 @@ import static com.wzc.netty.enums.UserRelationshipStatusEnum.*;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService{
 
-    @Resource
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
+    private final UserRelationshipMapper userRelationshipMapper;
+    private final DisruptorMQService disruptorMQService;
 
-    @Resource
-    private UserRelationshipMapper userRelationshipMapper;
-
-    @Resource
-    private DisruptorMQService disruptorMQService;
+    public UserServiceImpl(UserMapper userMapper,
+                           UserRelationshipMapper userRelationshipMapper,
+                           DisruptorMQService disruptorMQService) {
+        this.userMapper = userMapper;
+        this.userRelationshipMapper = userRelationshipMapper;
+        this.disruptorMQService = disruptorMQService;
+    }
 
     /**
      * 获取好友列表
@@ -80,15 +83,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public Boolean addUser(String userFromId, String userToId) {
+    public Boolean addFriend(String userFromId, String userToId) {
         if(StrUtil.isBlank(userFromId) || StrUtil.isBlank(userToId)){
             throw new BizException("用户ID不能为空!");
+        }
+        if(userFromId.equals(userToId)){
+            throw new BizException("不能添加自己为好友!");
         }
         List<Integer> validCodeList = List.of(PENDING.getCode(), APPROVED.getCode());
         UserRelationship userFromRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
         UserRelationship userToRelationship = userRelationshipMapper.queryUserRelationship(userToId, userFromId, validCodeList);
         if(ObjectUtil.isNotEmpty(userFromRelationship) || ObjectUtil.isNotEmpty(userToRelationship)) {
             throw new BizException("请勿重复添加!");
+        }
+        if(ObjectUtil.isNotEmpty(userFromRelationship) && ObjectUtil.isNotEmpty(userToRelationship)) {
+            throw new BizException("数据库存在非法状态！");
         }
         User user = userMapper.queryUserByUserId(userToId);
         if(ObjectUtil.isEmpty(user)){
@@ -111,6 +120,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         }
         return BooleanUtil.isTrue(result > 0);
+    }
+
+    @Override
+    public Boolean delFriend(String userFromId, String userToId) {
+        if(StrUtil.isBlank(userFromId) || StrUtil.isBlank(userToId)){
+            throw new BizException("用户ID不能为空!");
+        }
+        if(userFromId.equals(userToId)){
+            throw new BizException("不能删除自己!");
+        }
+        List<Integer> validCodeList = List.of(APPROVED.getCode());
+        UserRelationship userFromRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
+        UserRelationship userToRelationship = userRelationshipMapper.queryUserRelationship(userToId, userFromId, validCodeList);
+        if(ObjectUtil.isEmpty(userFromRelationship) && ObjectUtil.isEmpty(userToRelationship)) {
+            throw new BizException("不能删除非好友关系好友！");
+        }
+        if(ObjectUtil.isNotEmpty(userFromRelationship) && ObjectUtil.isNotEmpty(userToRelationship)) {
+            throw new BizException("数据库存在非法状态！");
+        }
+        User user = userMapper.queryUserByUserId(userToId);
+        if(ObjectUtil.isEmpty(user)){
+            throw new BizException("用户不存在!");
+        }
+
+        return null;
     }
 
     /**

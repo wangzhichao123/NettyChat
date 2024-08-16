@@ -60,9 +60,15 @@ public class UserController {
     @ApiOperation(value = "添加好友")
     public R<Boolean> addUser(@RequestParam("userFromId") String userFromId,
                               @RequestParam("userToId") String userToId) {
-        return R.ok(userService.addUser(userFromId, userToId));
+        return R.ok(userService.addFriend(userFromId, userToId));
     }
 
+    @PostMapping("/delete")
+    @ApiOperation(value = "删除好友")
+    public R<Boolean> deleteUser(@RequestParam("userFromId") String userFromId,
+                                 @RequestParam("userToId") String userToId) {
+        return R.ok(userService.delFriend(userFromId, userToId));
+    }
     @PostMapping("/approve")
     @ApiOperation(value = "通过/拒绝好友申请信息")
     public R<Boolean> approveUser(@RequestParam("userFromId") String userFromId,

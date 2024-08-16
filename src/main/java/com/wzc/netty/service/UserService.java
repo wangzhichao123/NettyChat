@@ -19,7 +19,9 @@ public interface UserService extends IService<User> {
 
     UserSearchInfoVo getSearchUserInfoByUserId(String userId);
 
-    Boolean addUser(String userFromId, String userToId);
+    Boolean addFriend(String userFromId, String userToId);
+
+    Boolean delFriend(String userFromId, String userToId);
 
     Boolean approveOrRejectUser(String userFromId, String userToId, Integer code);
 
