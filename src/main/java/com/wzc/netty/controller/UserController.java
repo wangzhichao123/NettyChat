@@ -1,5 +1,6 @@
 package com.wzc.netty.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wzc.netty.pojo.R;
 import com.wzc.netty.pojo.entity.User;
 import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
@@ -26,14 +27,26 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/relationship")
-    @ApiOperation(value = "获取用户好友列表")
-    public R<List<UserFriendsInfoVo>> getUserFriendList(@RequestParam("userId") @NotBlank String userId) {
+    @ApiOperation(value = "好友列表")
+    public R<List<UserFriendsInfoVo>> getUserFriendList(@RequestParam("userId") String userId) {
         return R.ok(userService.getUserFriendListByUserId(userId));
+    }
+
+    @PostMapping("/friend/application")
+    @ApiOperation(value = "好友申请列表")
+    public R<Page<UserFriendsInfoVo>> getUserApplicationList(@RequestParam("userId") String userId) {
+        return R.ok(userService.getUserApplicationList(userId));
+    }
+
+    @PostMapping("/friend/application/cursor")
+    @ApiOperation(value = "游标好友申请列表")
+    public R<Page<UserFriendsInfoVo>> getCursorUserApplicationList(@RequestParam("userId") String userId, @RequestParam("userId") Long id) {
+        return R.ok(userService.getCursorUserApplicationList(userId, id));
     }
 
     @PostMapping("/search/relationship")
     @ApiOperation(value = "获取搜索用户信息")
-    public R<UserSearchInfoVo> getSearchUserInfo(@RequestParam("userId") @NotBlank String userId) {
+    public R<UserSearchInfoVo> getSearchUserInfo(@RequestParam("userId") String userId) {
         return R.ok(userService.getSearchUserInfoByUserId(userId));
     }
 
@@ -51,18 +64,5 @@ public class UserController {
                                   @RequestParam("code") Integer code) {
         return R.ok(userService.approveOrRejectUser(userFromId, userToId, code));
     }
-
-    @PostMapping("/friend/application")
-    @ApiOperation(value = "好友申请列表")
-    public R<List<UserFriendsInfoVo>> getUserInfo(@RequestParam("userId") @NotBlank String userId) {
-        return R.ok(userService.getUserApplicationList(userId));
-    }
-
-    @PostMapping("/friend/application/cursor")
-    @ApiOperation(value = "游标好友申请列表")
-    public R<List<UserFriendsInfoVo>> getUserApplicationList(@RequestParam("userId") @NotBlank String userId) {
-        return R.ok(userService.getUserApplicationList(userId));
-    }
-
 
 }

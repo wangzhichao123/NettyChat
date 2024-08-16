@@ -5,68 +5,104 @@
 <mapper namespace="com.wzc.netty.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="com.wzc.netty.pojo.entity.User">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="userId" column="user_id" jdbcType="VARCHAR"/>
-            <result property="password" column="password" jdbcType="VARCHAR"/>
-            <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
-            <result property="loginType" column="login_type" jdbcType="TINYINT"/>
-            <result property="openId" column="open_id" jdbcType="VARCHAR"/>
-            <result property="ipInfo" column="ip_info" jdbcType="OTHER"/>
-            <result property="status" column="status" jdbcType="TINYINT"/>
-            <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
-            <result property="offlineTime" column="offline_time" jdbcType="TIMESTAMP"/>
-            <result property="onlineTime" column="online_time" jdbcType="TIMESTAMP"/>
-            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
-            <result property="delFlag" column="del_flag" jdbcType="CHAR"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="loginType" column="login_type" jdbcType="TINYINT"/>
+        <result property="openId" column="open_id" jdbcType="VARCHAR"/>
+        <result property="ipInfo" column="ip_info" jdbcType="OTHER"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
+        <result property="offlineTime" column="offline_time" jdbcType="TIMESTAMP"/>
+        <result property="onlineTime" column="online_time" jdbcType="TIMESTAMP"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="delFlag" column="del_flag" jdbcType="CHAR"/>
     </resultMap>
 
-        <update id="saveUserLoginStatus">
-                UPDATE user
-                <set>
-                        <if test="onlineTime != null">
-                                onlineTime = #{onlineTime},
-                        </if>
-                        <if test="offlineTime != null">
-                                offline_time = #{offlineTime},
-                        </if>
-                        <if test="status != null">
-                                status = #{status},
-                        </if>
-                </set>
-                WHERE user_id = #{userId} and del_flag = 0
-        </update>
-        <select id="queryUserByUserId" resultType="com.wzc.netty.pojo.entity.User">
-                SELECT id as id,
-                       user_id as userId,
-                       password as password,
-                       nickname as nickname,
-                       login_type as loginType,
-                       open_id as openId,
-                       ip_info as ipInfo,
-                       status as status,
-                       user_avatar as userAvatar,
-                       offline_time as offlineTime,
-                       online_time as onlineTime
-                FROM user
-                WHERE user_id = #{userId} and del_flag = 0
-        </select>
+    <update id="saveUserLoginStatus">
+        UPDATE user
+        <set>
+            <if test="onlineTime != null">
+                onlineTime = #{onlineTime},
+            </if>
+            <if test="offlineTime != null">
+                offline_time = #{offlineTime},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+        </set>
+        WHERE user_id = #{userId} and del_flag = 0
+    </update>
+    <select id="queryUserByUserId" resultType="com.wzc.netty.pojo.entity.User">
+        SELECT id as id,
+               user_id as userId,
+               password as password,
+               nickname as nickname,
+               login_type as loginType,
+               open_id as openId,
+               ip_info as ipInfo,
+               status as status,
+               user_avatar as userAvatar,
+               offline_time as offlineTime,
+               online_time as onlineTime
+        FROM user
+        WHERE user_id = #{userId} and del_flag = 0
+    </select>
 
     <select id="getUserFriendListByUserId" resultType="com.wzc.netty.pojo.vo.UserFriendsInfoVo">
-        SELECT a.user_id as userId,
-               a.nickname as nickname,
+        SELECT a.user_id     as userId,
+               a.nickname    as nickname,
                a.user_avatar as userAvatar,
-               a.status as status
+               a.status      as status
         FROM user as a
                  INNER JOIN user_relationship as b ON a.user_id = b.user_to_id
-        WHERE b.user_from_id = #{userId} and b.status = #{status} and b.del_flag = 0 and a.del_flag = 0 ;
+        WHERE b.user_from_id = #{userId}
+          and b.status = #{status}
+          and b.del_flag = 0
+          and a.del_flag = 0
     </select>
 
     <select id="getSearchUserInfoByUserId" resultType="com.wzc.netty.pojo.vo.UserSearchInfoVo">
-        SELECT user_id as userId,
-               nickname as nickname,
+        SELECT user_id     as userId,
+               nickname    as nickname,
                user_avatar as userAvatar
-        FROM user WHERE user_id = #{userId} and del_flag = 0;
+        FROM user
+        WHERE user_id = #{userId}
+          and del_flag = 0
+    </select>
+
+    <select id="getUserApplicationList" resultType="com.wzc.netty.pojo.vo.UserFriendsInfoVo">
+        SELECT b.id          as id,
+               a.user_id     as userId,
+               a.nickname    as nickname,
+               a.user_avatar as userAvatar,
+               a.status      as status
+        FROM user as a
+                 INNER JOIN user_relationship as b ON a.user_id = b.user_to_id
+        WHERE b.user_from_id = #{userId}
+          and b.status = #{status}
+          and b.del_flag = 0
+          and a.del_flag = 0
+        order by id desc
+    </select>
+
+    <select id="getCursorUserApplicationList" resultType="com.wzc.netty.pojo.vo.UserFriendsInfoVo">
+        SELECT b.id          as id,
+               a.user_id     as userId,
+               a.nickname    as nickname,
+               a.user_avatar as userAvatar,
+               a.status      as status
+        FROM user as a
+                 INNER JOIN user_relationship as b ON a.user_id = b.user_to_id
+        WHERE b.user_from_id = #{userId}
+          and b.status = #{status}
+          and b.del_flag = 0
+          and a.del_flag = 0
+          and b.id >= #{id}
+        order by id desc
     </select>
 
 

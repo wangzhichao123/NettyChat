@@ -3,7 +3,9 @@ package com.wzc.netty.service.Impl;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wzc.netty.context.PaginationContext;
 import com.wzc.netty.exception.BizException;
 import com.wzc.netty.mapper.UserMapper;
 import com.wzc.netty.mapper.UserRelationshipMapper;
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -31,10 +35,10 @@ import static com.wzc.netty.enums.UserRelationshipStatusEnum.*;
 
 
 /**
-* @author wzc
-* @description 针对表【user】的数据库操作Service实现
-* @createDate 2024-07-11 23:15:06
-*/
+ * @author wzc
+ * @description 针对表【user】的数据库操作Service实现
+ * @createDate 2024-07-11 23:15:06
+ */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService{
 
@@ -79,7 +83,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(StrUtil.isBlank(userFromId) || StrUtil.isBlank(userToId)){
             throw new BizException("用户ID不能为空!");
         }
-        List<Integer> validCodeList = List.of(PENDING.getCode(), APPROVED.getCode());
+        List<Integer> validCodeList = List.of(PENDING.getCode());
         UserRelationship userFromRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
         UserRelationship userToRelationship = userRelationshipMapper.queryUserRelationship(userToId, userFromId, validCodeList);
         if(ObjectUtil.isNotEmpty(userFromRelationship) && ObjectUtil.isNotEmpty(userToRelationship)) {
@@ -141,6 +145,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             record = userRelationshipMapper.updateById(userRelationship);
         }
         return BooleanUtil.isTrue(record > 0);
+    }
+
+    /**
+     * 获取好友申请列表
+     * @param userId
+     * @return Page<UserFriendsInfoVo>
+     */
+    @Override
+    public Page<UserFriendsInfoVo> getUserApplicationList(String userId) {
+        if(StrUtil.isBlank(userId)){
+            throw new BizException("用户ID不能为空!");
+        }
+        Page<UserFriendsInfoVo> page = new Page<>(PaginationContext.getCurrent(), PaginationContext.getSize());
+        return userMapper.getUserApplicationList(page, userId, PENDING.getCode());
+    }
+
+
+    /**
+     * 获取游标好友申请列表
+     * @param userId
+     * @param id
+     * @return Page<UserFriendsInfoVo>
+     */
+    @Override
+    public Page<UserFriendsInfoVo> getCursorUserApplicationList(String userId, Long id) {
+        if(ObjectUtil.isNull(id) || StrUtil.isBlank(userId)){
+            throw new BizException("ID不能为空!");
+        }
+        Page<UserFriendsInfoVo> page = new Page<>(PaginationContext.getCurrent(), PaginationContext.getSize());
+        return userMapper.getCursorUserApplicationList(page, userId, id, PENDING.getCode());
     }
 
 }
