@@ -8,6 +8,9 @@ import lombok.Data;
 @ApiModel(description = "UserFriendsInfoVo")
 public class UserFriendsInfoVo {
 
+    @ApiModelProperty(name = "排序ID")
+    private Long id;
+
     @ApiModelProperty(name = "用户ID")
     private String userId;
 

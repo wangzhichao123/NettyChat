@@ -53,7 +53,8 @@
     </select>
 
     <select id="getUserFriendListByUserId" resultType="com.wzc.netty.pojo.vo.UserFriendsInfoVo">
-        SELECT a.user_id     as userId,
+        SELECT b.id          as id,
+               a.user_id     as userId,
                a.nickname    as nickname,
                a.user_avatar as userAvatar,
                a.status      as status
