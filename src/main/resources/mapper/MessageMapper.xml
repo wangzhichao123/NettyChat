@@ -105,11 +105,11 @@
         <if test='userFromId != null and userFromId != ""'>
             and user_from_id = #{userFromId}
         </if>
-        <if test='groupId != null and groupId != ""'>
-            and user_to_id = #{groupId}
-        </if>
         <if test='userToId != null and userToId != ""'>
-            and group_id = #{userToId}
+            and user_to_id = #{userToId}
+        </if>
+        <if test='groupId != null and groupId != ""'>
+            and group_id = #{groupId}
         </if>
         <if test='sendMessageInitAck != null and sendMessageInitAck != ""'>
             and send_message_init_ack = #{sendMessageInitAck}
