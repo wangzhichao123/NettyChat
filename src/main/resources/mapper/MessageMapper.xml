@@ -54,7 +54,7 @@
                message_type AS messageType,
                send_message_type AS sendMessageType,
                group_id AS groupId,
-               message_content AS messageContent,
+               send_message_content AS sendMessageContent,
                message_status AS messageStatus,
                send_time AS sendTime,
                receive_time AS receiveTime
@@ -73,7 +73,7 @@
                message_type AS messageType,
                send_message_type AS sendMessageType,
                group_id AS groupId,
-               message_content AS messageContent,
+               send_message_content AS sendMessageContent,
                message_status AS messageStatus,
                send_time AS sendTime,
                receive_time AS receiveTime
@@ -92,7 +92,7 @@
                 message_type AS messageType,
                 send_message_type AS sendMessageType,
                 group_id AS groupId,
-                message_content AS messageContent,
+                send_message_content AS sendMessageContent,
                 message_status AS messageStatus,
                 send_message_init_ack AS sendMessageInitAck,
                 send_message_ack AS sendMessageAck,
