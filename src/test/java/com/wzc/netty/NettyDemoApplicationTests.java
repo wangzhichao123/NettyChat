@@ -1,7 +1,10 @@
 package com.wzc.netty;
 
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONUtil;
 import com.wzc.netty.mapper.MessageMapper;
+import com.wzc.netty.pojo.dto.ChatMessageDTO;
 import com.wzc.netty.pojo.entity.Message;
 import net.fellbaum.jemoji.Emoji;
 import net.fellbaum.jemoji.EmojiManager;
@@ -9,6 +12,7 @@ import net.fellbaum.jemoji.IndexedEmoji;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -58,11 +62,11 @@ class NettyDemoApplicationTests {
 //            System.out.println(content);
 //        }
         Message message = new Message();
-        message.setMessageContent(sss);
-        messageMapper.insert(message);
-
-        String s = UUID.randomUUID().toString();
-        System.out.println(s);
+        String s = JSONUtil.toJsonStr(message);
+        ChatMessageDTO chatMessageDTO = JSONUtil.toBean(s, ChatMessageDTO.class);
+        boolean empty1 = ObjectUtils.isEmpty(chatMessageDTO);
+        boolean empty = ObjectUtil.isAllEmpty(chatMessageDTO);
+        System.out.println(empty);
     }
 
 }

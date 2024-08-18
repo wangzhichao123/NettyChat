@@ -2,8 +2,10 @@ package com.wzc.netty.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wzc.netty.pojo.dto.ChatMessageDTO;
 import com.wzc.netty.pojo.entity.Message;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.SelectKey;
 
 /**
 * @author wzc
@@ -38,6 +40,27 @@ public interface MessageMapper extends BaseMapper<Message> {
      * @return
      */
     Message queryGroupMessage(@Param("messageId") String messageId, @Param("userFromId") String userFromId, @Param("groupId") String groupId);
+
+    /**
+     * 查询确认消息
+     * @param chatMessageDTO
+     * @return
+     */
+    Message queryAckMessage(ChatMessageDTO chatMessageDTO);
+
+    /**
+     * 更新发送消息ACK
+     * @param messageId
+     * @return
+     */
+    boolean updateSendMessageAck(@Param("messageId") String messageId);
+
+    /**
+     * 更新接收消息ACK
+     * @param messageId
+     * @return
+     */
+    boolean updateReceiveMessageAck(@Param("messageId") String messageId);
 }
 
 

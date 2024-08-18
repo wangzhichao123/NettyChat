@@ -13,15 +13,15 @@ import java.util.stream.Collectors;
 public enum MessageStatusEnum {
     MESSAGE_INIT(1, "消息初始化"),
 
-    MESSAGE_SENDING(2, "消息发送中"),
+    MESSAGE_SEND_PENDING(2, "消息发送待确认/消息接收待确认"),
 
-    MESSAGE_SUCCESS_SEND(3, "消息发送成功"),
+    MESSAGE_SEND_SUCCESS(3, "消息发送确认"),
 
-    MESSAGE_ERROR_SEND(4, "消息发送失败"),
+    MESSAGE_RECEIVE_SUCCESS(4, "消息接收确认"),
 
     MESSAGE_REVOKED(5, "消息撤回"),
 
-    MESSAGE_OFFLINE(6, "离线消息"),;
+    MESSAGE_OFFLINE(6, "离线消息");
 
     private final Integer code;
 

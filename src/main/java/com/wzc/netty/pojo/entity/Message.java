@@ -8,6 +8,8 @@ import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.lettuce.core.resource.Delay;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,11 +50,35 @@ public class Message implements Serializable{
      */
     private String userToId;
 
-
     /**
      * 发送消息类型 1：私聊消息 2：群组消息
      */
     private Integer messageType;
+
+    /**
+     * 发送消息初始化ACK
+     */
+    private Long sendMessageInitAck;
+
+    /**
+     * 发送消息ACK
+     */
+    private Long sendMessageAck;
+
+    /**
+     * 接收消息初始化ACK
+     */
+    private Long receiveMessageInitAck;
+
+    /**
+     * 接收消息ACK
+     */
+    private Long receiveMessageAck;
+
+    /**
+     * 消息是否可以展示：1：展示 0：不展示
+     */
+    private Integer display;
 
     /**
      * 消息类型 1：文本消息和emoji消息 2：图片消息 3：文件消息 4：语音消息 5：视频消息

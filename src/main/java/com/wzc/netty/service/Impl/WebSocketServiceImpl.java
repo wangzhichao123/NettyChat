@@ -24,17 +24,20 @@ import com.wzc.netty.util.NettyAttrUtil;
 import com.wzc.netty.util.RandomIDUtil;
 import io.netty.channel.Channel;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.wzc.netty.constant.CommonConstant.DISPLAY;
+import static com.wzc.netty.constant.CommonConstant.DISPLAY_NOT;
 import static com.wzc.netty.context.WebSocketChannelContext.*;
-import static com.wzc.netty.enums.LoginStatusEnum.*;
-import static com.wzc.netty.enums.MessageStatusEnum.*;
+import static com.wzc.netty.enums.LoginStatusEnum.OFFLINE_STATUS;
+import static com.wzc.netty.enums.MessageStatusEnum.MESSAGE_INIT;
+import static com.wzc.netty.enums.MessageStatusEnum.MESSAGE_OFFLINE;
+import static com.wzc.netty.enums.MessageTypeEnum.*;
 import static com.wzc.netty.enums.StatusCodeEnum.*;
-import static com.wzc.netty.enums.UserRelationshipStatusEnum.*;
+import static com.wzc.netty.enums.UserRelationshipStatusEnum.APPROVED;
 
 
 @Service
@@ -146,23 +149,34 @@ public class WebSocketServiceImpl implements WebSocketService {
             return ;
         }
         List<Integer> validCodeList = List.of(APPROVED.getCode());
-        UserRelationship relationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
-        if(ObjectUtil.isEmpty(relationship)){
+        UserRelationship fromRelationship = userRelationshipMapper.queryUserRelationship(userFromId, userToId, validCodeList);
+        UserRelationship toRelationship = userRelationshipMapper.queryUserRelationship(userToId, userFromId, validCodeList);
+        if(ObjectUtil.isEmpty(fromRelationship) && ObjectUtil.isEmpty(toRelationship)){
             disruptorMQService.sendMsg(channel, R.fail(NOT_FRIENDS));
             return ;
         }
         String messageId = RandomIDUtil.generateRandomUUID();
+        Long sendMessageInitAck = RandomIDUtil.generateRandomLong();
+        Long receiveMessageInitAck = RandomIDUtil.generateRandomLong();
         messageDTO.setMessageId(messageId);
+        messageDTO.setSendMessageAck(sendMessageInitAck);
+        messageDTO.setReceiveMessageAck(receiveMessageInitAck);
+        messageDTO.setSendDisplay(DISPLAY_NOT);
+        messageDTO.setReceiveDisplay(DISPLAY_NOT);
         Message message = new Message();
         BeanUtil.copyProperties(messageDTO, message);
-        message.setMessageStatus(MESSAGE_INIT.getCode());
+        message.setSendMessageInitAck(sendMessageInitAck);
+        message.setReceiveMessageInitAck(receiveMessageInitAck);
         messageMapper.insert(message);
+        // 发送给A用户进行发送确认
+        disruptorMQService.sendMsg(channel, R.ok(messageContentHandler(messageDTO), MESSAGE_SEND_SUCCESS));
         // 在线处理
         CopyOnWriteArrayList<Channel> targetChannels = M_DEVICE_ONLINE_USER_MAP.get(targetUser.getUserId());
         if(ObjectUtil.isNotEmpty(targetChannels)){
             for (Channel targetChannel : targetChannels) {
                 String targetUserId = targetChannel.attr(NettyAttrUtil.ATTR_KEY_USER_ID).get();
                 if (targetUserId.equals(targetUser.getUserId())){
+                    // 发送给B用户进行接收确认
                     disruptorMQService.sendMsg(targetChannel, R.ok(messageContentHandler(messageDTO), MESSAGE_SEND_SUCCESS));
                 }
             }
@@ -249,35 +263,50 @@ public class WebSocketServiceImpl implements WebSocketService {
      * @param data
      */
     @Override
-    public void handleACKMessage(Channel channel, String data) {
-//        // 1、校验数据
-//        if(StrUtil.isBlank(data)){
-//            disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
-//            return ;
-//        }
-//        ACKMessageDTO ackMessageDTO = JSONUtil.toBean(data, ACKMessageDTO.class);
-//        String userId = tokenService.getSubject(ackMessageDTO.getToken());
-//        // 2、校验 Token
-//        if(StrUtil.isBlank(userId)){
-//            disruptorMQService.sendMsg(channel, R.fail(INVALID_TOKEN));
-//            return ;
-//        }
-//       Message message = null;
-//       MessageTypeEnum messageTypeEnum = MessageTypeEnum.of(ackMessageDTO.getMessageType());
-//       switch (messageTypeEnum){
-//           case GROUP:
-//               message = messageMapper.queryGroupMessage(ackMessageDTO.getMessageId(), ackMessageDTO.getUserFromId(), ackMessageDTO.getGroupId());
-//               break;
-//           case PRIVATE:
-//               message = messageMapper.queryPrivateMessage(ackMessageDTO.getMessageId(), ackMessageDTO.getUserFromId(), ackMessageDTO.getUserToId());
-//               break;
-//           default:
-//              disruptorMQService.sendMsg(channel, R.fail(INVALID_ACK_MESSAGE));
-//       }
-//       if(ObjectUtil.isNull(message)){
-//           disruptorMQService.sendMsg(channel, R.fail(INVALID_ACK_MESSAGE));
-//       }
-        
+    public void handleACKMessage(Channel channel, String data, String token) {
+        // 1、校验数据
+        if(StrUtil.isBlank(data)){
+            disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
+            return ;
+        }
+        String userId = tokenService.getSubject(token);
+        String attrKeyUserId = NettyAttrUtil.getAttrKeyUserId(channel);
+        // 2、校验 Token
+        if(StrUtil.isBlank(userId) && !userId.equals(attrKeyUserId)){
+            disruptorMQService.sendMsg(channel, R.fail("用户状态异常"));
+            clearSession(channel);
+            return ;
+        }
+        ChatMessageDTO chatMessageDTO = JSONUtil.toBean(data, ChatMessageDTO.class);
+        // 3、查询确认消息是否存在
+        Message message = messageMapper.queryAckMessage(chatMessageDTO);
+        Long receiveMessageAck = chatMessageDTO.getReceiveMessageAck();
+        Long sendMessageAck = chatMessageDTO.getSendMessageAck();
+        List<Integer> valCodeList = List.of(GROUP.getCode(), PRIVATE.getCode());
+        if(ObjectUtil.isEmpty(message)
+                || (ObjectUtil.isNotEmpty(sendMessageAck) && ObjectUtil.isNotEmpty(receiveMessageAck))
+                || (ObjectUtil.isEmpty(sendMessageAck) && ObjectUtil.isEmpty(receiveMessageAck))
+                || (!valCodeList.contains(message.getMessageType()))){
+            this.disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
+            return ;
+        }
+
+        // 4、识别消息是发送方/接收方
+        if(ObjectUtil.isNotEmpty(chatMessageDTO.getSendMessageAck())){
+            if (message.getSendMessageAck() + 1 == chatMessageDTO.getSendMessageAck()) {
+                messageMapper.updateSendMessageAck(chatMessageDTO.getMessageId());
+                chatMessageDTO.setSendDisplay(DISPLAY);
+                chatMessageDTO.setSendMessageAck(chatMessageDTO.getSendMessageAck() + 1);
+                disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
+            }
+        }else if(ObjectUtil.isNotEmpty(chatMessageDTO.getReceiveMessageAck())){
+            if(message.getReceiveMessageAck() + 1 == chatMessageDTO.getReceiveMessageAck()){
+                messageMapper.updateReceiveMessageAck(chatMessageDTO.getMessageId());
+                chatMessageDTO.setReceiveDisplay(DISPLAY);
+                chatMessageDTO.setReceiveMessageAck(chatMessageDTO.getReceiveMessageAck() + 1);
+                disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
+            }
+        }
     }
 }
 

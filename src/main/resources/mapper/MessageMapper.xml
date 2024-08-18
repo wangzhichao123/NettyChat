@@ -16,51 +16,113 @@
                 <result property="messageStatus" column="message_status" jdbcType="INTEGER"/>
                 <result property="sendTime" column="send_time" jdbcType="TIMESTAMP"/>
                 <result property="receiveTime" column="receive_time" jdbcType="TIMESTAMP"/>
+                <result property="sendMessageInitAck" column="send_message_init_ack" jdbcType="BIGINT"/>
+                <result property="sendMessageAck" column="send_message_ack" jdbcType="BIGINT"/>
+                <result property="receiveMessageInitAck" column="receive_message_init_ack" jdbcType="BIGINT"/>
+                <result property="receiveMessageAck" column="receive_message_ack" jdbcType="BIGINT"/>
                 <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
                 <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
-                <result property="delFlag" column="del_flag" jdbcType="BIT"/>
+                <result property="delFlag" column="del_flag" jdbcType="CHAR"/>
         </resultMap>
+
     <update id="updateMessageStatus">
         update message
         set message_status = #{messageStatus}
         where message_id = #{messageId}
           and del_flag = 0
     </update>
+
+    <update id="updateReceiveMessageAck" parameterType="java.lang.String">
+        update message
+        set receive_message_ack = #{receiveMessageAck}
+        where message_id = #{messageId}
+          and del_flag = 0
+    </update>
+
+    <update id="updateSendMessageAck" parameterType="java.lang.String">
+        update message
+        set send_message_ack = #{sendMessageAck}
+        where message_id = #{messageId}
+          and del_flag = 0
+    </update>
+
     <select id="queryPrivateMessage" resultType="com.wzc.netty.pojo.entity.Message">
-                select id,
-                       message_id,
-                       user_from_id,
-                       user_to_id,
-                       message_type,
-                       send_message_type,
-                       group_id,
-                       message_content,
-                       message_status,
-                       send_time,
-                       receive_time
-                from message
-                where message_id = #{messageId}
-                  and user_from_id = #{userFromId}
-                  and user_to_id = #{userToId}
-                  and del_flag = 0
-        </select>
-        <select id="queryGroupMessage" resultType="com.wzc.netty.pojo.entity.Message">
-                select id,
-                       message_id,
-                       user_from_id,
-                       user_to_id,
-                       message_type,
-                       send_message_type,
-                       group_id,
-                       message_content,
-                       message_status,
-                       send_time,
-                       receive_time
-                from message
-                where message_id = #{messageId}
-                  and user_from_id = #{userFromId}
-                  and group_id = #{groupId}
-                  and del_flag = 0
-        </select>
+        select id AS id,
+               message_id AS messageId,
+               user_from_id AS userFromId,
+               user_to_id AS userToId,
+               message_type AS messageType,
+               send_message_type AS sendMessageType,
+               group_id AS groupId,
+               message_content AS messageContent,
+               message_status AS messageStatus,
+               send_time AS sendTime,
+               receive_time AS receiveTime
+        from message
+        where message_id = #{messageId}
+          and user_from_id = #{userFromId}
+          and user_to_id = #{userToId}
+          and del_flag = 0
+    </select>
+
+    <select id="queryGroupMessage" resultType="com.wzc.netty.pojo.entity.Message">
+        select id AS id,
+               message_id AS messageId,
+               user_from_id AS userFromId,
+               user_to_id AS userToId,
+               message_type AS messageType,
+               send_message_type AS sendMessageType,
+               group_id AS groupId,
+               message_content AS messageContent,
+               message_status AS messageStatus,
+               send_time AS sendTime,
+               receive_time AS receiveTime
+        from message
+        where message_id = #{messageId}
+          and user_from_id = #{userFromId}
+          and group_id = #{groupId}
+          and del_flag = 0
+    </select>
+
+    <select id="queryAckMessage" resultType="com.wzc.netty.pojo.entity.Message">
+        select  id AS id,
+                message_id AS messageId,
+                user_from_id AS userFromId,
+                user_to_id AS userToId,
+                message_type AS messageType,
+                send_message_type AS sendMessageType,
+                group_id AS groupId,
+                message_content AS messageContent,
+                message_status AS messageStatus,
+                send_message_init_ack AS sendMessageInitAck,
+                send_message_ack AS sendMessageAck,
+                receive_message_init_ack AS receiveMessageInitAck,
+                receive_message_ack AS receiveMessageAck,
+                send_time AS sendTime,
+                receive_time AS receiveTime
+        from message
+        where message_id = #{messageId} and del_flag = 0
+        <if test='userFromId != null and userFromId != ""'>
+            and user_from_id = #{userFromId}
+        </if>
+        <if test='groupId != null and groupId != ""'>
+            and user_to_id = #{groupId}
+        </if>
+        <if test='userToId != null and userToId != ""'>
+            and group_id = #{userToId}
+        </if>
+        <if test='sendMessageInitAck != null and sendMessageInitAck != ""'>
+            and send_message_init_ack = #{sendMessageInitAck}
+        </if>
+        <if test='sendMessageAck != null and sendMessageAck != ""'>
+            and send_message_ack = #{sendMessageAck}
+        </if>
+        <if test='receiveMessageInitAck != null and receiveMessageInitAck != ""'>
+            and receive_message_init_ack = #{receiveMessageInitAck}
+        </if>
+        <if test='receiveMessageAck != null and receiveMessageAck != ""'>
+            and receive_message_ack = #{receiveMessageAck}
+        </if>
+    </select>
 
 </mapper>

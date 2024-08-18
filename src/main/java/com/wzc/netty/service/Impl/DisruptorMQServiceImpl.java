@@ -3,6 +3,7 @@ package com.wzc.netty.service.Impl;
 import cn.hutool.json.JSONUtil;
 import com.lmax.disruptor.RingBuffer;
 import com.wzc.netty.pojo.R;
+import com.wzc.netty.pojo.dto.ChatMessageDTO;
 import com.wzc.netty.pojo.dto.MessageModel;
 import com.wzc.netty.service.DisruptorMQService;
 import io.netty.channel.Channel;
@@ -10,12 +11,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.concurrent.DelayQueue;
+
 @Slf4j
 @Service
 public class DisruptorMQServiceImpl implements DisruptorMQService {
 
     @Resource
     private RingBuffer<MessageModel> messageModelRingBuffer;
+
 
     @Override
     public void sendMsg(Channel channel, R<?> msg) {

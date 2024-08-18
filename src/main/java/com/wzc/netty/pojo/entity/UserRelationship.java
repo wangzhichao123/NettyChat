@@ -17,11 +17,13 @@ public class UserRelationship {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
     /**
      * 主键ID
      */
     @TableId(type = IdType.AUTO)
     private Long id;
+
     /**
      * 发送方用户ID
      */

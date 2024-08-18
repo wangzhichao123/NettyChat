@@ -17,5 +17,5 @@ public interface WebSocketService {
 
     void clearSession(Channel channel);
 
-    void handleACKMessage(Channel channel, String data);
+    void handleACKMessage(Channel channel, String data, String token);
 }

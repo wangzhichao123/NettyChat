@@ -27,6 +27,18 @@ public class ChatMessageDTO {
     @ApiModelProperty("群组ID")
     private String groupId;
 
+    @ApiModelProperty("发送消息ACK")
+    private Long sendMessageAck;
+
+    @ApiModelProperty("接收消息ACK")
+    private Long receiveMessageAck;
+
+    @ApiModelProperty("消息是否可以展示：1：展示 0：不展示")
+    private Integer sendDisplay;
+
+    @ApiModelProperty("消息是否可以展示：1：展示 0：不展示")
+    private Integer receiveDisplay;
+
     @ApiModelProperty("发送消息类型 1：私聊消息 2：群组消息")
     private Integer MessageType;
 
@@ -44,6 +56,5 @@ public class ChatMessageDTO {
 
     @ApiModelProperty("接收时间")
     private LocalDateTime receiveTime;
-
 
 }

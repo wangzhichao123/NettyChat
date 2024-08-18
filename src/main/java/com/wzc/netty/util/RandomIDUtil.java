@@ -2,6 +2,7 @@ package com.wzc.netty.util;
 
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.lang.generator.UUIDGenerator;
+import cn.hutool.core.util.RandomUtil;
 
 import java.util.Random;
 
@@ -30,5 +31,9 @@ public class RandomIDUtil {
 
     public static String generateRandomUUID() {
         return UUID.randomUUID().toString().replace("-","");
+    }
+
+    public static Long generateRandomLong() {
+        return RandomUtil.randomLong();
     }
 }

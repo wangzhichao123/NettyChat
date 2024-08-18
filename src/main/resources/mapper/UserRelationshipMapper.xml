@@ -18,10 +18,10 @@
     </resultMap>
 
     <select id="queryUserRelationship" resultType="com.wzc.netty.pojo.entity.UserRelationship">
-        select id,
-        user_from_id,
-        user_to_id,
-        status
+        select  id as id,
+                user_from_id as userFromId,
+                user_to_id as userToId,
+                status as status,
         from user_relationship
         where user_from_id = #{userFromId}
         and user_to_id = #{userToId}

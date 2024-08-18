@@ -11,7 +11,7 @@
         <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
         <result property="loginType" column="login_type" jdbcType="TINYINT"/>
         <result property="openId" column="open_id" jdbcType="VARCHAR"/>
-        <result property="ipInfo" column="ip_info" jdbcType="OTHER"/>
+        <result property="ipInfo" column="ip_info" jdbcType="VARCHAR"/>
         <result property="status" column="status" jdbcType="TINYINT"/>
         <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
         <result property="offlineTime" column="offline_time" jdbcType="TIMESTAMP"/>

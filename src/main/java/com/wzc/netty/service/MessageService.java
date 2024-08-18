@@ -1,6 +1,7 @@
 package com.wzc.netty.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wzc.netty.pojo.dto.ChatMessageDTO;
 import com.wzc.netty.pojo.entity.Message;
 /**
 * @author wzc
@@ -8,5 +9,6 @@ import com.wzc.netty.pojo.entity.Message;
 * @createDate 2024-07-11 23:15:06
 */
 public interface MessageService extends IService<Message> {
+
 
 }

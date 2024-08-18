@@ -11,4 +11,8 @@ public class CommonConstant {
     public static final Integer APPROVE_CODE = 1;
 
     public static final Integer REJECT_CODE = 0;
+
+    public static final Integer DISPLAY = 1;
+
+    public static final Integer DISPLAY_NOT = 0;
 }
