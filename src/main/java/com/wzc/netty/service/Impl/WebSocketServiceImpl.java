@@ -169,7 +169,7 @@ public class WebSocketServiceImpl implements WebSocketService {
         message.setReceiveMessageInitAck(receiveMessageInitAck);
         messageMapper.insert(message);
         // 发送给A用户进行发送确认
-        disruptorMQService.sendMsg(channel, R.ok(messageContentHandler(messageDTO), MESSAGE_SEND_SUCCESS));
+        disruptorMQService.sendMsg(channel, R.ok(messageContentHandler(messageDTO), MESSAGE_SEND_ACK));
         // 在线处理
         CopyOnWriteArrayList<Channel> targetChannels = M_DEVICE_ONLINE_USER_MAP.get(targetUser.getUserId());
         if(ObjectUtil.isNotEmpty(targetChannels)){
@@ -177,7 +177,7 @@ public class WebSocketServiceImpl implements WebSocketService {
                 String targetUserId = targetChannel.attr(NettyAttrUtil.ATTR_KEY_USER_ID).get();
                 if (targetUserId.equals(targetUser.getUserId())){
                     // 发送给B用户进行接收确认
-                    disruptorMQService.sendMsg(targetChannel, R.ok(messageContentHandler(messageDTO), MESSAGE_SEND_SUCCESS));
+                    disruptorMQService.sendMsg(targetChannel, R.ok(messageContentHandler(messageDTO), MESSAGE_RECEIVE_ACK));
                 }
             }
         }else {

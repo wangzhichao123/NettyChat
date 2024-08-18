@@ -41,7 +41,11 @@ public enum StatusCodeEnum {
 
     NOT_FRIENDS(10011, "非好友关系"),
 
-    FRIEND_APPLICATION(10012, "好友申请");
+    FRIEND_APPLICATION(10012, "好友申请"),
+
+    MESSAGE_SEND_ACK(10013, "发送待确认ACK"),
+
+    MESSAGE_RECEIVE_ACK(10014, "接收待确认ACK"),;
 
     private final Integer code;
 
