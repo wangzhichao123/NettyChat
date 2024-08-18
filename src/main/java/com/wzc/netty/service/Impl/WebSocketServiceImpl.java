@@ -155,7 +155,11 @@ public class WebSocketServiceImpl implements WebSocketService {
             disruptorMQService.sendMsg(channel, R.fail(NOT_FRIENDS));
             return ;
         }
-        String messageId = RandomIDUtil.generateRandomUUID();
+        String messageId = messageDTO.getMessageId();
+        if(StrUtil.isBlank(messageId)){
+            disruptorMQService.sendMsg(channel, R.fail(MESSAGE_SEND_ERROR));
+            return ;
+        }
         Long sendMessageInitAck = RandomIDUtil.generateRandomLong();
         Long receiveMessageInitAck = RandomIDUtil.generateRandomLong();
         messageDTO.setMessageId(messageId);
@@ -260,12 +264,12 @@ public class WebSocketServiceImpl implements WebSocketService {
     /**
      * 处理ACK消息
      * @param channel
-     * @param data
+     * @param messageId
      */
     @Override
-    public void handleACKMessage(Channel channel, String data, String token) {
+    public void handleACKMessage(Channel channel, String messageId, String token) {
         // 1、校验数据
-        if(StrUtil.isBlank(data)){
+        if(StrUtil.isBlank(messageId)){
             disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
             return ;
         }
@@ -277,35 +281,19 @@ public class WebSocketServiceImpl implements WebSocketService {
             clearSession(channel);
             return ;
         }
-        ChatMessageDTO chatMessageDTO = JSONUtil.toBean(data, ChatMessageDTO.class);
+
         // 3、查询确认消息是否存在
-        Message message = messageMapper.queryAckMessage(chatMessageDTO);
-        Long receiveMessageAck = chatMessageDTO.getReceiveMessageAck();
-        Long sendMessageAck = chatMessageDTO.getSendMessageAck();
-        List<Integer> valCodeList = List.of(GROUP.getCode(), PRIVATE.getCode());
-        if(ObjectUtil.isEmpty(message)
-                || (ObjectUtil.isNotEmpty(sendMessageAck) && ObjectUtil.isNotEmpty(receiveMessageAck))
-                || (ObjectUtil.isEmpty(sendMessageAck) && ObjectUtil.isEmpty(receiveMessageAck))
-                || (!valCodeList.contains(message.getMessageType()))){
+        Message message = messageMapper.queryAckMessage(messageId);
+        if(ObjectUtil.isEmpty(message)){
             this.disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
             return ;
         }
-
+        ChatMessageDTO chatMessageDTO = BeanUtil.copyProperties(message, ChatMessageDTO.class);
         // 4、识别消息是发送方/接收方
-        if(ObjectUtil.isNotEmpty(chatMessageDTO.getSendMessageAck())){
-            if (message.getSendMessageAck() + 1 == chatMessageDTO.getSendMessageAck()) {
-                messageMapper.updateSendMessageAck(chatMessageDTO.getMessageId());
-                chatMessageDTO.setSendDisplay(DISPLAY);
-                chatMessageDTO.setSendMessageAck(chatMessageDTO.getSendMessageAck() + 1);
-                disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
-            }
-        }else if(ObjectUtil.isNotEmpty(chatMessageDTO.getReceiveMessageAck())){
-            if(message.getReceiveMessageAck() + 1 == chatMessageDTO.getReceiveMessageAck()){
-                messageMapper.updateReceiveMessageAck(chatMessageDTO.getMessageId());
-                chatMessageDTO.setReceiveDisplay(DISPLAY);
-                chatMessageDTO.setReceiveMessageAck(chatMessageDTO.getReceiveMessageAck() + 1);
-                disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
-            }
+        if(attrKeyUserId == message.getUserFromId()){
+            disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
+        }else if(attrKeyUserId == message.getUserToId()){
+            disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
         }
     }
 }

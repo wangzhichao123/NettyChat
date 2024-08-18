@@ -43,10 +43,10 @@ public interface MessageMapper extends BaseMapper<Message> {
 
     /**
      * 查询确认消息
-     * @param chatMessageDTO
+     * @param messageId
      * @return
      */
-    Message queryAckMessage(ChatMessageDTO chatMessageDTO);
+    Message queryAckMessage(String messageId);
 
     /**
      * 更新发送消息ACK

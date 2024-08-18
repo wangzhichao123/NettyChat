@@ -102,27 +102,6 @@
                 receive_time AS receiveTime
         from message
         where message_id = #{messageId} and del_flag = 0
-        <if test='userFromId != null and userFromId != ""'>
-            and user_from_id = #{userFromId}
-        </if>
-        <if test='userToId != null and userToId != ""'>
-            and user_to_id = #{userToId}
-        </if>
-        <if test='groupId != null and groupId != ""'>
-            and group_id = #{groupId}
-        </if>
-        <if test='sendMessageInitAck != null and sendMessageInitAck != ""'>
-            and send_message_init_ack = #{sendMessageInitAck}
-        </if>
-        <if test='sendMessageAck != null and sendMessageAck != ""'>
-            and send_message_ack = #{sendMessageAck}
-        </if>
-        <if test='receiveMessageInitAck != null and receiveMessageInitAck != ""'>
-            and receive_message_init_ack = #{receiveMessageInitAck}
-        </if>
-        <if test='receiveMessageAck != null and receiveMessageAck != ""'>
-            and receive_message_ack = #{receiveMessageAck}
-        </if>
     </select>
 
 </mapper>
