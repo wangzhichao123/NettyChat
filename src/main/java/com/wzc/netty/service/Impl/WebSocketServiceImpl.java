@@ -11,6 +11,7 @@ import com.wzc.netty.mapper.MessageMapper;
 import com.wzc.netty.mapper.UserMapper;
 import com.wzc.netty.mapper.UserRelationshipMapper;
 import com.wzc.netty.pojo.R;
+import com.wzc.netty.pojo.dto.ACKMessageDTO;
 import com.wzc.netty.pojo.dto.ChatMessageDTO;
 import com.wzc.netty.pojo.dto.LoginDTO;
 import com.wzc.netty.pojo.entity.Message;
@@ -264,12 +265,12 @@ public class WebSocketServiceImpl implements WebSocketService {
     /**
      * 处理ACK消息
      * @param channel
-     * @param messageId
+     * @param data
      */
     @Override
-    public void handleACKMessage(Channel channel, String messageId, String token) {
+    public void handleACKMessage(Channel channel, String data, String token) {
         // 1、校验数据
-        if(StrUtil.isBlank(messageId)){
+        if(StrUtil.isBlank(data)){
             disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
             return ;
         }
@@ -281,7 +282,8 @@ public class WebSocketServiceImpl implements WebSocketService {
             clearSession(channel);
             return ;
         }
-
+        ACKMessageDTO ackMessageDTO = JSONUtil.toBean(data, ACKMessageDTO.class);
+        String messageId = ackMessageDTO.getMessageId();
         // 3、查询确认消息是否存在
         Message message = messageMapper.queryAckMessage(messageId);
         if(ObjectUtil.isEmpty(message)){
@@ -290,9 +292,9 @@ public class WebSocketServiceImpl implements WebSocketService {
         }
         ChatMessageDTO chatMessageDTO = BeanUtil.copyProperties(message, ChatMessageDTO.class);
         // 4、识别消息是发送方/接收方
-        if(attrKeyUserId == message.getUserFromId()){
+        if(attrKeyUserId.equals(message.getUserFromId())){
             disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
-        }else if(attrKeyUserId == message.getUserToId()){
+        }else if(attrKeyUserId.equals(message.getUserToId())){
             disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
         }
     }
