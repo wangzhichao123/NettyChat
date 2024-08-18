@@ -34,6 +34,6 @@ public class RandomIDUtil {
     }
 
     public static Long generateRandomLong() {
-        return RandomUtil.randomLong();
+        return RandomUtil.randomLong(10000L, 10000000000L) & 0x7FFFFFFFFFFFFFFFL;
     }
 }
