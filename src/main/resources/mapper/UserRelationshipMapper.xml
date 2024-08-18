@@ -21,7 +21,7 @@
         select  id as id,
                 user_from_id as userFromId,
                 user_to_id as userToId,
-                status as status,
+                status as status
         from user_relationship
         where user_from_id = #{userFromId}
         and user_to_id = #{userToId}
