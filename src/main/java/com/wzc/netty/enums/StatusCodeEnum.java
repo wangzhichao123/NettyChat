@@ -37,8 +37,6 @@ public enum StatusCodeEnum {
 
     MESSAGE_ACK_ERROR(10009, "消息确认失败"),
 
-    INVALID_ACK_MESSAGE(10010, "非法确认消息类型"),
-
     NOT_FRIENDS(10011, "非好友关系"),
 
     FRIEND_APPLICATION(10012, "好友申请"),

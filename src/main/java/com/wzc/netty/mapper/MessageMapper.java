@@ -2,8 +2,10 @@ package com.wzc.netty.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wzc.netty.pojo.dto.ChatMessageDTO;
 import com.wzc.netty.pojo.entity.Message;
+import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectKey;
 
@@ -61,6 +63,8 @@ public interface MessageMapper extends BaseMapper<Message> {
      * @return
      */
     boolean updateReceiveMessageAck(@Param("messageId") String messageId);
+
+    Page<ChatMessageDTO> getUserFriendMessage(Page<UserFriendsInfoVo> page, @Param("userFromId") String userFromId, @Param("userToId") String userToId);
 }
 
 

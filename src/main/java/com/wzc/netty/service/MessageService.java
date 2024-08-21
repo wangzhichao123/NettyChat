@@ -1,5 +1,6 @@
 package com.wzc.netty.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wzc.netty.pojo.dto.ChatMessageDTO;
 import com.wzc.netty.pojo.entity.Message;
@@ -11,4 +12,7 @@ import com.wzc.netty.pojo.entity.Message;
 public interface MessageService extends IService<Message> {
 
 
+    Page<ChatMessageDTO> getUserFriendMessage(String userFromId, String userToId);
+
+    Page<ChatMessageDTO> getUserGroupMessage(String userFromId, String groupId);
 }

@@ -1,18 +1,26 @@
 package com.wzc.netty.service.Impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wzc.netty.context.PaginationContext;
+import com.wzc.netty.exception.BizException;
 import com.wzc.netty.mapper.MessageMapper;
 import com.wzc.netty.pojo.dto.ChatMessageDTO;
 import com.wzc.netty.pojo.entity.Message;
+import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
 import com.wzc.netty.service.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Executors;
+
+import static com.wzc.netty.enums.UserRelationshipStatusEnum.APPROVED;
 
 /**
 * @author wzc
@@ -23,6 +31,22 @@ import java.util.concurrent.Executors;
 @Service
 public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     implements MessageService {
+
+    @Resource
+    private MessageMapper messageMapper;
+    @Override
+    public Page<ChatMessageDTO> getUserFriendMessage(String userFromId, String userToId) {
+        if(StrUtil.isBlank(userFromId) || StrUtil.isBlank(userToId)){
+            throw new BizException("用户ID不能为空!");
+        }
+        Page<UserFriendsInfoVo> page = new Page<>(PaginationContext.getCurrent(), PaginationContext.getSize());
+        return messageMapper.getUserFriendMessage(page, userFromId, userToId);
+    }
+
+    @Override
+    public Page<ChatMessageDTO> getUserGroupMessage(String userFromId, String groupId) {
+        return null;
+    }
 
 //    private final static ConcurrentHashMap<String, DelayQueue<ChatMessageDTO>> delayMap = new ConcurrentHashMap<>();
 //

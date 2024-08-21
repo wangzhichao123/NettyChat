@@ -5,8 +5,10 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson2.JSON;
 import com.wzc.netty.enums.MessageTypeEnum;
 import com.wzc.netty.enums.SendMessageTypeEnum;
+import com.wzc.netty.exception.BizException;
 import com.wzc.netty.mapper.MessageMapper;
 import com.wzc.netty.mapper.UserMapper;
 import com.wzc.netty.mapper.UserRelationshipMapper;
@@ -161,20 +163,14 @@ public class WebSocketServiceImpl implements WebSocketService {
             disruptorMQService.sendMsg(channel, R.fail(MESSAGE_SEND_ERROR));
             return ;
         }
-        Long sendMessageInitAck = RandomIDUtil.generateRandomLong();
-        Long receiveMessageInitAck = RandomIDUtil.generateRandomLong();
         messageDTO.setMessageId(messageId);
-        messageDTO.setSendMessageAck(sendMessageInitAck);
-        messageDTO.setReceiveMessageAck(receiveMessageInitAck);
-        messageDTO.setSendDisplay(DISPLAY_NOT);
-        messageDTO.setReceiveDisplay(DISPLAY_NOT);
         Message message = new Message();
         BeanUtil.copyProperties(messageDTO, message);
-        message.setSendMessageInitAck(sendMessageInitAck);
-        message.setReceiveMessageInitAck(receiveMessageInitAck);
         messageMapper.insert(message);
         // 发送给A用户进行发送确认
-        disruptorMQService.sendMsg(channel, R.ok(messageContentHandler(messageDTO), MESSAGE_SEND_ACK));
+        ChatMessageDTO chatMessageDTO = messageContentHandler(messageDTO);
+        chatMessageDTO.setDisplayStatus(DISPLAY_NOT);
+        disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_ACK));
         // 在线处理
         CopyOnWriteArrayList<Channel> targetChannels = M_DEVICE_ONLINE_USER_MAP.get(targetUser.getUserId());
         if(ObjectUtil.isNotEmpty(targetChannels)){
@@ -182,7 +178,7 @@ public class WebSocketServiceImpl implements WebSocketService {
                 String targetUserId = targetChannel.attr(NettyAttrUtil.ATTR_KEY_USER_ID).get();
                 if (targetUserId.equals(targetUser.getUserId())){
                     // 发送给B用户进行接收确认
-                    disruptorMQService.sendMsg(targetChannel, R.ok(messageContentHandler(messageDTO), MESSAGE_RECEIVE_ACK));
+                    disruptorMQService.sendMsg(targetChannel, R.ok(chatMessageDTO, MESSAGE_RECEIVE_ACK));
                 }
             }
         }else {
@@ -282,20 +278,26 @@ public class WebSocketServiceImpl implements WebSocketService {
             clearSession(channel);
             return ;
         }
-        ACKMessageDTO ackMessageDTO = JSONUtil.toBean(data, ACKMessageDTO.class);
-        String messageId = ackMessageDTO.getMessageId();
-        // 3、查询确认消息是否存在
-        Message message = messageMapper.queryAckMessage(messageId);
-        if(ObjectUtil.isEmpty(message)){
-            this.disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
-            return ;
+        List<String> messageIdList = JSONUtil.parseObj(data).getJSONArray("messageId").toList(String.class);
+        if (ObjectUtil.isEmpty(messageIdList)){
+            disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
+            return;
         }
-        ChatMessageDTO chatMessageDTO = BeanUtil.copyProperties(message, ChatMessageDTO.class);
-        // 4、识别消息是发送方/接收方
-        if(attrKeyUserId.equals(message.getUserFromId())){
-            disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
-        }else if(attrKeyUserId.equals(message.getUserToId())){
-            disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
+        for (String messageId : messageIdList){
+            // 3、查询确认消息是否存在
+            Message message = messageMapper.queryAckMessage(messageId);
+            if(ObjectUtil.isEmpty(message)){
+                this.disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
+                return ;
+            }
+            ChatMessageDTO chatMessageDTO = BeanUtil.copyProperties(message, ChatMessageDTO.class);
+            chatMessageDTO.setDisplayStatus(DISPLAY);
+            // 4、识别消息是发送方/接收方
+            if(attrKeyUserId.equals(message.getUserFromId())){
+                disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
+            }else if(attrKeyUserId.equals(message.getUserToId())){
+                disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
+            }
         }
     }
 }
