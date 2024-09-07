@@ -24,7 +24,7 @@
 
     <update id="updateSendMessageStatus">
         update message
-        set receive_message_status = #{messageStatus}
+        set send_message_status = #{messageStatus}
         where message_id = #{messageId}
           and del_flag = 0
     </update>

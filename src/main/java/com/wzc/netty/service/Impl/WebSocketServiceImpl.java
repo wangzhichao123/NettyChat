@@ -8,13 +8,16 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
 import com.wzc.netty.enums.MessageTypeEnum;
 import com.wzc.netty.enums.SendMessageTypeEnum;
+import com.wzc.netty.mapper.GroupMapper;
 import com.wzc.netty.mapper.MessageMapper;
 import com.wzc.netty.mapper.UserMapper;
 import com.wzc.netty.mapper.UserRelationshipMapper;
+import com.wzc.netty.pojo.ChatRoom;
 import com.wzc.netty.pojo.R;
 import com.wzc.netty.pojo.dto.ACKMessageDTO;
 import com.wzc.netty.pojo.dto.ChatMessageDTO;
 import com.wzc.netty.pojo.dto.LoginDTO;
+import com.wzc.netty.pojo.entity.Group;
 import com.wzc.netty.pojo.entity.Message;
 import com.wzc.netty.pojo.entity.User;
 import com.wzc.netty.pojo.entity.UserRelationship;
@@ -24,6 +27,7 @@ import com.wzc.netty.service.TokenService;
 import com.wzc.netty.service.WebSocketService;
 import com.wzc.netty.util.NettyAttrUtil;
 import io.netty.channel.Channel;
+import io.netty.channel.group.ChannelGroup;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -46,6 +50,7 @@ public class WebSocketServiceImpl implements WebSocketService {
     private final TokenService tokenService;
     private final UserMapper userMapper;
     private final MessageMapper messageMapper;
+    private final GroupMapper groupMapper;
     private final UserRelationshipMapper userRelationshipMapper;
     private final DisruptorMQService disruptorMQService;
 
@@ -53,12 +58,14 @@ public class WebSocketServiceImpl implements WebSocketService {
                                 TokenService tokenService,
                                 UserMapper userMapper,
                                 MessageMapper messageMapper,
+                                GroupMapper groupMapper,
                                 UserRelationshipMapper userRelationshipMapper,
                                 DisruptorMQService disruptorMQService) {
         this.loginService = loginService;
         this.tokenService = tokenService;
         this.userMapper = userMapper;
         this.messageMapper = messageMapper;
+        this.groupMapper = groupMapper;
         this.userRelationshipMapper = userRelationshipMapper;
         this.disruptorMQService = disruptorMQService;
     }
@@ -184,7 +191,7 @@ public class WebSocketServiceImpl implements WebSocketService {
             }
         }else {
             // 离线消息 (仅入库)
-            messageMapper.updateSendMessageStatus(message.getMessageId(), MESSAGE_OFFLINE.getCode());
+            messageMapper.updateReceiveMessageStatus(message.getMessageId(), MESSAGE_OFFLINE.getCode());
         }
     }
 
@@ -218,7 +225,26 @@ public class WebSocketServiceImpl implements WebSocketService {
      * @param messageDTO
      */
     private void groupMessageHandler(Channel channel, ChatMessageDTO messageDTO) {
+        String groupId = messageDTO.getGroupId();
+        Group group = groupMapper.queryGroupByGroupId(groupId);
+        if(ObjectUtil.isEmpty(group)){
+            disruptorMQService.sendMsg(channel, R.fail(MESSAGE_SEND_ERROR));
+            return ;
+        }
+        String messageId = messageDTO.getMessageId();
+        if(StrUtil.isBlank(messageId)){
+            disruptorMQService.sendMsg(channel, R.fail(MESSAGE_SEND_ERROR));
+            return ;
+        }
+        String userFromId = messageDTO.getUserFromId();
+        User sourceUser = userMapper.queryUserByUserId(userFromId);
+        if(ObjectUtil.isEmpty(sourceUser)){
+            disruptorMQService.sendMsg(channel, R.fail(USER_NOT_EXIST));
+            return ;
+        }
+        ChannelGroup channelGroup = CHAT_ROOMS.get(groupId).getChannelGroup();
 
+        // TODO 群组消息处理
     }
 
     /**

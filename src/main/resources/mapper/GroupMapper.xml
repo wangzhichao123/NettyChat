@@ -14,4 +14,15 @@
             <result property="delFlag" column="del_flag" jdbcType="CHAR"/>
     </resultMap>
 
+    <select id="queryGroupByGroupId" resultType="com.wzc.netty.pojo.entity.Group"
+            parameterType="java.lang.String">
+        select id as id,
+               group_id as groupId,
+               group_name as groupName,
+               group_max as groupMax,
+               group_avatar as groupAvatar
+        from group
+        where group_id = #{groupId} and del_flag = 0
+    </select>
+
 </mapper>

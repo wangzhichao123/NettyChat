@@ -12,7 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class WebSocketChannelContext {
 
     /**
-     * key: 用户id
+     * key: 用户ID
      * value: 存储当前用户所有登录的channel
      */
     public static final ConcurrentHashMap<String, CopyOnWriteArrayList<Channel>> M_DEVICE_ONLINE_USER_MAP = new ConcurrentHashMap<>();
@@ -20,7 +20,10 @@ public class WebSocketChannelContext {
 
     public static final ChannelGroup GLOBAL_ONLINE_USER_GROUP = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
-
+    /**
+     * key: 群组ID
+     * value: 群聊信息
+     */
     public static final ConcurrentHashMap<String, ChatRoom> CHAT_ROOMS = new ConcurrentHashMap<>();
 
 
