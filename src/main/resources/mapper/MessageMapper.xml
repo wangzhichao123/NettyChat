@@ -36,6 +36,13 @@
           and del_flag = 0
     </update>
 
+    <update id="updateReceiveMessageStatusAndTime">
+        update message
+        set receive_message_status = #{messageStatus},
+            receive_time = #{receiveTime}
+        where message_id = #{messageId}
+          and del_flag = 0
+    </update>
 
     <select id="queryPrivateMessage" resultType="com.wzc.netty.pojo.entity.Message">
         select id AS id,
@@ -46,7 +53,8 @@
                send_message_type AS sendMessageType,
                group_id AS groupId,
                send_message_content AS sendMessageContent,
-               message_status AS messageStatus,
+               send_message_status AS sendMessageStatus,
+               receive_message_status AS receiveMessageStatus,
                send_time AS sendTime,
                receive_time AS receiveTime
         from message
@@ -65,7 +73,8 @@
                send_message_type AS sendMessageType,
                group_id AS groupId,
                send_message_content AS sendMessageContent,
-               message_status AS messageStatus,
+               send_message_status AS sendMessageStatus,
+               receive_message_status AS receiveMessageStatus,
                send_time AS sendTime,
                receive_time AS receiveTime
         from message

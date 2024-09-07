@@ -3,6 +3,7 @@ package com.wzc.netty.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wzc.netty.pojo.dto.ACKMessageDTO;
 import com.wzc.netty.pojo.dto.ChatMessageDTO;
 import com.wzc.netty.pojo.entity.Message;
 import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
@@ -60,6 +61,13 @@ public interface MessageMapper extends BaseMapper<Message> {
 
 
     Page<ChatMessageDTO> getUserFriendMessage(Page<UserFriendsInfoVo> page, @Param("userFromId") String userFromId, @Param("userToId") String userToId);
+
+    /**
+     * 更新接收确认消息状态和接收时间
+     * @param ackMessageDTO
+     * @param messageStatus
+     */
+    void updateReceiveMessageStatusAndTime(ACKMessageDTO ackMessageDTO, @Param("messageStatus") Integer messageStatus);
 }
 
 

@@ -8,7 +8,6 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
 import com.wzc.netty.enums.MessageTypeEnum;
 import com.wzc.netty.enums.SendMessageTypeEnum;
-import com.wzc.netty.exception.BizException;
 import com.wzc.netty.mapper.MessageMapper;
 import com.wzc.netty.mapper.UserMapper;
 import com.wzc.netty.mapper.UserRelationshipMapper;
@@ -24,7 +23,6 @@ import com.wzc.netty.service.LoginService;
 import com.wzc.netty.service.TokenService;
 import com.wzc.netty.service.WebSocketService;
 import com.wzc.netty.util.NettyAttrUtil;
-import com.wzc.netty.util.RandomIDUtil;
 import io.netty.channel.Channel;
 import org.springframework.stereotype.Service;
 
@@ -37,10 +35,7 @@ import static com.wzc.netty.constant.CommonConstant.DISPLAY_NOT;
 import static com.wzc.netty.context.WebSocketChannelContext.*;
 import static com.wzc.netty.enums.LoginStatusEnum.OFFLINE_STATUS;
 import static com.wzc.netty.enums.MessageStatusEnum.*;
-import static com.wzc.netty.enums.MessageStatusEnum.MESSAGE_SEND_PENDING;
-import static com.wzc.netty.enums.MessageTypeEnum.*;
 import static com.wzc.netty.enums.StatusCodeEnum.*;
-import static com.wzc.netty.enums.StatusCodeEnum.MESSAGE_SEND_SUCCESS;
 import static com.wzc.netty.enums.UserRelationshipStatusEnum.APPROVED;
 
 
@@ -284,14 +279,14 @@ public class WebSocketServiceImpl implements WebSocketService {
             clearSession(channel);
             return ;
         }
-        List<String> messageIdList = JSONUtil.parseObj(data).getJSONArray("messageId").toList(String.class);
+        List<ACKMessageDTO> messageIdList = JSON.parseArray(data, ACKMessageDTO.class);
         if (ObjectUtil.isEmpty(messageIdList)){
             disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
             return;
         }
-        for (String messageId : messageIdList){
+        for (ACKMessageDTO ackMessageDTO : messageIdList){
             // 3、查询确认消息是否存在
-            Message message = messageMapper.queryAckMessage(messageId);
+            Message message = messageMapper.queryAckMessage(ackMessageDTO.getMessageId());
             if(ObjectUtil.isEmpty(message)){
                 this.disruptorMQService.sendMsg(channel, R.fail(MESSAGE_ACK_ERROR));
                 return ;
@@ -301,10 +296,10 @@ public class WebSocketServiceImpl implements WebSocketService {
             String currentUserId = NettyAttrUtil.getAttrKeyUserId(channel);
             // 4、识别消息是发送方/接收方
             if (currentUserId.equals(message.getUserFromId())) {
-                messageMapper.updateSendMessageStatus(chatMessageDTO.getMessageId(), MESSAGE_ACK_SUCCESS.getCode());
+                messageMapper.updateSendMessageStatus(ackMessageDTO.getMessageId(), MESSAGE_ACK_SUCCESS.getCode());
                 disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
             } else if (currentUserId.equals(message.getUserToId())) {
-                messageMapper.updateReceiveMessageStatus(chatMessageDTO.getMessageId(), MESSAGE_ACK_SUCCESS.getCode());
+                messageMapper.updateReceiveMessageStatusAndTime(ackMessageDTO, MESSAGE_ACK_SUCCESS.getCode());
                 disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
             }
         }
