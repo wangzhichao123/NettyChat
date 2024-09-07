@@ -67,14 +67,19 @@ public class Message implements Serializable{
     private String groupId;
 
     /**
-     * 消息内容
+     * 发送消息内容
      */
     private String sendMessageContent;
 
     /**
-     * 消息状态 1：消息初始化；2：消息发送中；3：消息发送成功；4：消息发送失败；5：消息撤回
+     * 消息状态 1：消息初始化；2：消息发送待确认/消息接收待确认；3：消息发送确认/消息接收确认；5：消息撤回；6：离线消息
      */
-    private Integer messageStatus;
+    private Integer sendMessageStatus;
+
+    /**
+     * 消息状态 1：消息初始化；2：消息发送待确认/消息接收待确认；3：消息发送确认/消息接收确认；5：消息撤回；6：离线消息
+     */
+    private Integer receiveMessageStatus;
 
     /**
      * 消息发送时间

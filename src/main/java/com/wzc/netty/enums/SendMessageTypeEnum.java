@@ -21,6 +21,7 @@ public enum SendMessageTypeEnum {
     AUDIO(4, "语音消息"),
 
     VIDEO(5, "视频消息");
+
     private final Integer code;
 
     private final String desc;

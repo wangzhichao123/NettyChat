@@ -16,6 +16,7 @@ public enum LoginStatusEnum {
     OFFLINE_STATUS(0, "离线");
 
     private final Integer code;
+
     private final String desc;
 
     private static Map<Integer, LoginStatusEnum> cache;

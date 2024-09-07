@@ -8,14 +8,19 @@ import com.lmax.disruptor.dsl.ProducerType;
 import com.wzc.netty.handler.WSMessageEventFactory;
 import com.wzc.netty.handler.WSMessageEventHandler;
 import com.wzc.netty.pojo.dto.MessageModel;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.Resource;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
+@Slf4j
 public class MQConfig {
 
     @Resource
@@ -30,12 +35,11 @@ public class MQConfig {
     public RingBuffer<MessageModel> messageModelRingBuffer() {
         WSMessageEventFactory factory = new WSMessageEventFactory();
         Disruptor<MessageModel> disruptor = new Disruptor<>(
-                (EventFactory) factory,
+                factory,
                 bufferSize,
-                (Executor) websocketExecutor,
+                websocketExecutor.getThreadPoolExecutor(),
                 ProducerType.MULTI,
                 new BlockingWaitStrategy());
-
         // 设置事件业务处理器---消费者
         disruptor.handleEventsWith(new WSMessageEventHandler());
 

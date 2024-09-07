@@ -15,9 +15,7 @@ public enum MessageStatusEnum {
 
     MESSAGE_SEND_PENDING(2, "消息发送待确认/消息接收待确认"),
 
-    MESSAGE_SEND_SUCCESS(3, "消息发送确认"),
-
-    MESSAGE_RECEIVE_SUCCESS(4, "消息接收确认"),
+    MESSAGE_ACK_SUCCESS(3, "消息发送确认/消息接收确认"),
 
     MESSAGE_REVOKED(5, "消息撤回"),
 

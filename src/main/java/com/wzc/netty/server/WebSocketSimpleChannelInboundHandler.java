@@ -114,6 +114,7 @@ public class WebSocketSimpleChannelInboundHandler extends SimpleChannelInboundHa
                 break;
             case ACK_MESSAGE:
                 this.webSocketService.handleACKMessage(ctx.channel(), wsReqDTO.getData(), wsReqDTO.getToken());
+                break;
             case HEARTBEAT_MESSAGE:
                 this.webSocketService.handleHeartbeat(ctx.channel());
                 break;

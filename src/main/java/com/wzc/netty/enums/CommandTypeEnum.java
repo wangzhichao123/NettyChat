@@ -22,6 +22,7 @@ public enum CommandTypeEnum {
     HEARTBEAT_MESSAGE(4, "心跳消息");
 
     private final Integer cmd;
+
     private final String desc;
 
     private static Map<Integer, CommandTypeEnum> cache;

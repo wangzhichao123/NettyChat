@@ -3,7 +3,6 @@ package com.wzc.netty.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wzc.netty.pojo.R;
 import com.wzc.netty.pojo.dto.ChatMessageDTO;
-import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
 import com.wzc.netty.service.MessageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

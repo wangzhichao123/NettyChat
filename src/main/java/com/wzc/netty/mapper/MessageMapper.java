@@ -23,8 +23,16 @@ public interface MessageMapper extends BaseMapper<Message> {
      * @param messageStatus
      * @return
      */
-    boolean updateMessageStatus(@Param("messageId") String messageId, @Param("messageStatus") Integer messageStatus);
+    int updateSendMessageStatus(@Param("messageId") String messageId, @Param("messageStatus") Integer messageStatus);
 
+
+    /**
+     * 更新消息状态
+     * @param messageId
+     * @param messageStatus
+     * @return
+     */
+    int updateReceiveMessageStatus(@Param("messageId") String messageId, @Param("messageStatus") Integer messageStatus);
     /**
      * 查询私聊消息
      * @param messageId
@@ -50,19 +58,6 @@ public interface MessageMapper extends BaseMapper<Message> {
      */
     Message queryAckMessage(String messageId);
 
-    /**
-     * 更新发送消息ACK
-     * @param messageId
-     * @return
-     */
-    boolean updateSendMessageAck(@Param("messageId") String messageId);
-
-    /**
-     * 更新接收消息ACK
-     * @param messageId
-     * @return
-     */
-    boolean updateReceiveMessageAck(@Param("messageId") String messageId);
 
     Page<ChatMessageDTO> getUserFriendMessage(Page<UserFriendsInfoVo> page, @Param("userFromId") String userFromId, @Param("userToId") String userToId);
 }

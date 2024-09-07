@@ -36,10 +36,11 @@ import static com.wzc.netty.constant.CommonConstant.DISPLAY;
 import static com.wzc.netty.constant.CommonConstant.DISPLAY_NOT;
 import static com.wzc.netty.context.WebSocketChannelContext.*;
 import static com.wzc.netty.enums.LoginStatusEnum.OFFLINE_STATUS;
-import static com.wzc.netty.enums.MessageStatusEnum.MESSAGE_INIT;
-import static com.wzc.netty.enums.MessageStatusEnum.MESSAGE_OFFLINE;
+import static com.wzc.netty.enums.MessageStatusEnum.*;
+import static com.wzc.netty.enums.MessageStatusEnum.MESSAGE_SEND_PENDING;
 import static com.wzc.netty.enums.MessageTypeEnum.*;
 import static com.wzc.netty.enums.StatusCodeEnum.*;
+import static com.wzc.netty.enums.StatusCodeEnum.MESSAGE_SEND_SUCCESS;
 import static com.wzc.netty.enums.UserRelationshipStatusEnum.APPROVED;
 
 
@@ -165,11 +166,15 @@ public class WebSocketServiceImpl implements WebSocketService {
         }
         messageDTO.setMessageId(messageId);
         Message message = new Message();
+        message.setSendMessageStatus(MESSAGE_INIT.getCode());
+        message.setReceiveMessageStatus(MESSAGE_INIT.getCode());
         BeanUtil.copyProperties(messageDTO, message);
         messageMapper.insert(message);
         // 发送给A用户进行发送确认
         ChatMessageDTO chatMessageDTO = messageContentHandler(messageDTO);
         chatMessageDTO.setDisplayStatus(DISPLAY_NOT);
+        // 更新状态
+        messageMapper.updateSendMessageStatus(messageId, MESSAGE_SEND_PENDING.getCode());
         disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_ACK));
         // 在线处理
         CopyOnWriteArrayList<Channel> targetChannels = M_DEVICE_ONLINE_USER_MAP.get(targetUser.getUserId());
@@ -178,12 +183,13 @@ public class WebSocketServiceImpl implements WebSocketService {
                 String targetUserId = targetChannel.attr(NettyAttrUtil.ATTR_KEY_USER_ID).get();
                 if (targetUserId.equals(targetUser.getUserId())){
                     // 发送给B用户进行接收确认
+                    messageMapper.updateReceiveMessageStatus(messageId, MESSAGE_SEND_PENDING.getCode());
                     disruptorMQService.sendMsg(targetChannel, R.ok(chatMessageDTO, MESSAGE_RECEIVE_ACK));
                 }
             }
         }else {
             // 离线消息 (仅入库)
-            messageMapper.updateMessageStatus(message.getMessageId(), MESSAGE_OFFLINE.getCode());
+            messageMapper.updateSendMessageStatus(message.getMessageId(), MESSAGE_OFFLINE.getCode());
         }
     }
 
@@ -292,10 +298,13 @@ public class WebSocketServiceImpl implements WebSocketService {
             }
             ChatMessageDTO chatMessageDTO = BeanUtil.copyProperties(message, ChatMessageDTO.class);
             chatMessageDTO.setDisplayStatus(DISPLAY);
+            String currentUserId = NettyAttrUtil.getAttrKeyUserId(channel);
             // 4、识别消息是发送方/接收方
-            if(attrKeyUserId.equals(message.getUserFromId())){
+            if (currentUserId.equals(message.getUserFromId())) {
+                messageMapper.updateSendMessageStatus(chatMessageDTO.getMessageId(), MESSAGE_ACK_SUCCESS.getCode());
                 disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
-            }else if(attrKeyUserId.equals(message.getUserToId())){
+            } else if (currentUserId.equals(message.getUserToId())) {
+                messageMapper.updateReceiveMessageStatus(chatMessageDTO.getMessageId(), MESSAGE_ACK_SUCCESS.getCode());
                 disruptorMQService.sendMsg(channel, R.ok(chatMessageDTO, MESSAGE_SEND_SUCCESS));
             }
         }

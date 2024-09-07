@@ -2,20 +2,17 @@ package com.wzc.netty.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wzc.netty.pojo.R;
-import com.wzc.netty.pojo.entity.User;
 import com.wzc.netty.pojo.vo.UserFriendsInfoVo;
 import com.wzc.netty.pojo.vo.UserSearchInfoVo;
 import com.wzc.netty.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import java.util.List;
 
 
 @Api(tags = "用户接口")
